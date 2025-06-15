@@ -79,9 +79,14 @@ export class SubscriptionService {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const { error } = await supabase.rpc('increment_analysis_usage', {
-      user_id: user.id
-    });
+    // Use a direct update instead of RPC to avoid TypeScript issues
+    const { error } = await supabase
+      .from('subscribers')
+      .update({ 
+        analyses_used: supabase.raw('analyses_used + 1'),
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error incrementing analysis usage:', error);
