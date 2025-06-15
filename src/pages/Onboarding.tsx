@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,7 @@ import { Bot, Globe, Search, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCreateAnalysis, useAnalysisStatus } from '@/hooks/useAnalysis';
 import { toast } from 'sonner';
+import { useSession } from "@/hooks/useSession";
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
@@ -19,6 +19,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const createAnalysis = useCreateAnalysis();
   const { status } = useAnalysisStatus(analysisId);
+  const session = useSession();
 
   const handleWebsiteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +48,17 @@ const Onboarding = () => {
       setStep(4);
     }
   }, [status, step]);
+
+  // Redirect to sign in if not logged in for step 2+
+  React.useEffect(() => {
+    if (step >= 2 && !session.user && !session.isLoaded) {
+      // If the session isn't loaded, don't redirect yet
+      return;
+    }
+    if (step >= 2 && !session.user) {
+      navigate("/auth");
+    }
+  }, [step, session.user, session.isLoaded, navigate]);
 
   const progressValue = (step / 4) * 100;
 

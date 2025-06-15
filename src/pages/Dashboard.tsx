@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +7,19 @@ import { Bot, Edit, Download, Eye, Share, Plus, BarChart3, TrendingUp, Users, Ta
 import { Link } from 'react-router-dom';
 import { useAnalyses } from '@/hooks/useAnalysis';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSession } from "@/hooks/useSession";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const session = useSession();
+  const navigate = useNavigate();
+
+  if (!session.user && session.isLoaded) {
+    // Not logged in, redirect
+    navigate("/auth");
+    return null;
+  }
+
   const { data: analyses, isLoading, error } = useAnalyses();
 
   const completedAnalyses = analyses?.filter(a => a.status === 'completed') || [];

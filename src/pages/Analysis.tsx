@@ -1,22 +1,54 @@
-
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Navigate } from "react-router-dom";
+import { useSession } from "@/hooks/useSession";
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAnalysis, useCompetitors, useAnalysisContent, useDifferentiationAngles } from '@/hooks/useAnalysis';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bot, ArrowLeft, Download, Share, Users, TrendingUp, Target, FileText, Lightbulb } from 'lucide-react';
-import { useAnalysis, useCompetitors, useAnalysisContent, useDifferentiationAngles } from '@/hooks/useAnalysis';
-import { Skeleton } from '@/components/ui/skeleton';
 
-const Analysis = () => {
+const AnalysisPage = () => {
   const { id } = useParams<{ id: string }>();
-  const analysisId = id || '';
+  const session = useSession();
 
-  const { data: analysis, isLoading: analysisLoading } = useAnalysis(analysisId);
-  const { data: competitors, isLoading: competitorsLoading } = useCompetitors(analysisId);
-  const { data: content, isLoading: contentLoading } = useAnalysisContent(analysisId);
-  const { data: angles, isLoading: anglesLoading } = useDifferentiationAngles(analysisId);
+  if (id === "sample") {
+    // Show sample data for demo
+    return (
+      <div className="max-w-2xl mx-auto py-24 px-4">
+        <h2 className="text-3xl font-bold mb-6">Sample Competitor Analysis</h2>
+        <p className="mb-4">
+          Here is a demo of what you'll receive with CompeteAI. Your real results will be fully tailored to your market:
+        </p>
+        <ul className="mb-6 text-blue-800 space-y-2 bg-blue-50 p-4 rounded">
+          <li>• 5 sample competitors with side-by-side charts</li>
+          <li>• Differentiation angle examples</li>
+          <li>• Full battle card, feature table, and executive summary</li>
+        </ul>
+        <div className="border p-8 rounded bg-white shadow">
+          <p className="font-bold mb-2">Executive Summary</p>
+          <p style={{ color: "#2a2a2a" }}>
+            "Acme AI leverages advanced automation to outpace traditional competitors in speed, flexibility, and cost-efficiency.
+            Key rivals include RoboSoft, InsightPro, and PricingGenius, with unique weaknesses and gaps in their product lines."
+          </p>
+          <div className="mt-6">
+            <p className="font-bold mb-1">Battle Card Highlight</p>
+            <p>RoboSoft: Lacks integrated analytics; InsightPro: Expensive for SMBs; PricingGenius: Slow deployment time.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session.user && session.isLoaded) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const { data: analysis, isLoading: analysisLoading } = useAnalysis(id);
+  const { data: competitors, isLoading: competitorsLoading } = useCompetitors(id);
+  const { data: content, isLoading: contentLoading } = useAnalysisContent(id);
+  const { data: angles, isLoading: anglesLoading } = useDifferentiationAngles(id);
 
   const fullAnalysis = content?.find(c => c.content_type === 'full_analysis');
   const battleCard = content?.find(c => c.content_type === 'battle_card');
@@ -336,4 +368,4 @@ const Analysis = () => {
   );
 };
 
-export default Analysis;
+export default AnalysisPage;

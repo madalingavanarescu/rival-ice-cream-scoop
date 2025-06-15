@@ -1,10 +1,21 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Bot, Search, FileText, Download } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  // Handlers for buttons
+  const handleSample = () => {
+    // Navigate to a hardcoded sample report (public demo)
+    navigate('/analysis/sample');
+  };
+
+  const handleSignIn = () => {
+    navigate('/auth');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -21,7 +32,7 @@ const Index = () => {
               <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
             </nav>
             <div className="flex space-x-4">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline" onClick={handleSignIn}>Sign In</Button>
               <Link to="/onboarding">
                 <Button>Start Free Trial</Button>
               </Link>
@@ -48,7 +59,7 @@ const Index = () => {
                 Analyze My Competitors <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="px-8 py-3">
+            <Button variant="outline" size="lg" className="px-8 py-3" onClick={handleSample}>
               View Sample Report
             </Button>
           </div>
