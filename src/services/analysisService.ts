@@ -623,14 +623,14 @@ ${angles.filter(a => a.opportunity_level === 'high').map(angle => `- ${angle.tit
 
 ### Pricing Analysis
 - **Average Starting Price**: $${Math.round(competitors.reduce((sum, c) => sum + (c.pricing_start || 0), 0) / competitors.length)}
-- **Most Common Model**: ${this.getMostCommonPricingModel(competitors)}
+- **Most Common Model**: ${ContentGenerationService.getMostCommonPricingModel(competitors)}
 - **Price Range**: $${Math.min(...competitors.map(c => c.pricing_start || 0))} - $${Math.max(...competitors.map(c => c.pricing_start || 0))}
 
 ### Feature Adoption
-${this.generateFeatureInsights(competitors)}
+${ContentGenerationService.generateFeatureInsights(competitors)}
 
 ### Positioning Trends
-${this.generatePositioningInsights(competitors)}
+${ContentGenerationService.generatePositioningInsights(competitors)}
 
 ## Opportunity Assessment
 
