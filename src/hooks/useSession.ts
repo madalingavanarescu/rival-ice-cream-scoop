@@ -1,10 +1,11 @@
 
 import { useState, useEffect, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
 
 type SessionContextType = {
-  user: any;
-  session: any;
+  user: User | null;
+  session: Session | null;
   isLoaded: boolean;
   signOut: () => void;
 };
@@ -12,8 +13,8 @@ type SessionContextType = {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
