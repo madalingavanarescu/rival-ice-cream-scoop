@@ -92,7 +92,7 @@ export class AnalysisService {
         body: { 
           website: analysis.website,
           companyName: analysis.name,
-          websiteContext: websiteContext // Pass context for intelligent discovery
+          websiteContext: websiteContext
         }
       });
 
@@ -104,9 +104,9 @@ export class AnalysisService {
       const competitors = competitorData?.competitors || [];
       console.log(`Discovered ${competitors.length} competitors using AI`, competitorData?.source);
 
-      console.log('Step 3: Enhanced competitor analysis');
+      console.log('Step 3: Enhanced comparative competitor analysis');
 
-      // Phase 3: Analyze each competitor with enhanced context
+      // Phase 3: Analyze each competitor with enhanced comparative context
       for (const competitor of competitors) {
         try {
           console.log(`Analyzing competitor: ${competitor.name}`);
@@ -119,7 +119,7 @@ export class AnalysisService {
             }
           });
 
-          // Then analyze with enhanced context
+          // Then analyze with enhanced comparative context
           const { data: analysisResult } = await supabase.functions.invoke('analyze-competitor', {
             body: {
               website: competitor.website,
@@ -130,7 +130,7 @@ export class AnalysisService {
           });
 
           if (analysisResult?.success && analysisResult.competitorData) {
-            // Store enhanced competitor data
+            // Store enhanced competitor data with comparative insights
             await supabase
               .from('competitors')
               .insert({
@@ -148,10 +148,25 @@ export class AnalysisService {
                 target_audience: analysisResult.competitorData.target_audience,
                 value_proposition: analysisResult.competitorData.value_proposition,
                 competitive_advantages: analysisResult.competitorData.competitive_advantages,
-                market_focus: analysisResult.competitorData.market_focus
+                market_focus: analysisResult.competitorData.market_focus,
+                comparative_insights: analysisResult.competitorData.comparative_insights
               });
 
-            console.log(`Competitor ${competitor.name} analyzed and stored`);
+            // Generate differentiation angles based on comparative insights
+            if (analysisResult.competitorData.comparative_insights?.differentiation_opportunities) {
+              for (const opportunity of analysisResult.competitorData.comparative_insights.differentiation_opportunities) {
+                await supabase
+                  .from('differentiation_angles')
+                  .insert({
+                    analysis_id: analysisId,
+                    title: opportunity,
+                    description: `Opportunity identified through comparative analysis with ${competitor.name}`,
+                    opportunity_level: analysisResult.competitorData.comparative_insights.competitive_threat_level === 'high' ? 'high' : 'medium'
+                  });
+              }
+            }
+
+            console.log(`Competitor ${competitor.name} analyzed and stored with comparative insights`);
           }
         } catch (error) {
           console.error(`Error analyzing competitor ${competitor.name}:`, error);
@@ -173,7 +188,7 @@ export class AnalysisService {
         })
         .eq('id', analysisId);
 
-      console.log('Enhanced analysis completed successfully');
+      console.log('Enhanced comparative analysis completed successfully');
 
     } catch (error) {
       console.error('Error in enhanced analysis:', error);

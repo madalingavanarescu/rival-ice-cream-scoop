@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { website, competitorName, scrapedContent } = await req.json();
+    const { website, competitorName, scrapedContent, userWebsiteContext } = await req.json();
     
     if (!website || !competitorName) {
       return new Response(
@@ -23,6 +23,7 @@ serve(async (req) => {
     }
 
     console.log('Analyzing competitor:', competitorName, 'at', website);
+    console.log('Using user context for comparative analysis:', !!userWebsiteContext);
 
     const apiKey = Deno.env.get('OPENROUTER_API_KEY');
     
@@ -30,10 +31,10 @@ serve(async (req) => {
       throw new Error('OPENROUTER_API_KEY is not configured');
     }
 
-    // Enhanced AI prompt for comprehensive competitor analysis
-    const prompt = createEnhancedAnalysisPrompt(competitorName, website, scrapedContent);
+    // Enhanced AI prompt for comparative competitor analysis
+    const prompt = createComparativeAnalysisPrompt(competitorName, website, scrapedContent, userWebsiteContext);
 
-    console.log('Calling OpenRouter API for enhanced competitor analysis');
+    console.log('Calling OpenRouter API for comparative competitor analysis');
     
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -41,21 +42,21 @@ serve(async (req) => {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://your-app-domain.com',
-        'X-Title': 'Competitor Analysis Tool',
+        'X-Title': 'Comparative Competitor Analysis Tool',
       },
       body: JSON.stringify({
         model: 'google/gemma-2-9b-it:free',
         messages: [
           {
             role: 'system',
-            content: 'You are an expert business analyst specialized in competitive intelligence, pricing analysis, and market positioning. Provide detailed, accurate analysis based on available information.'
+            content: 'You are an expert competitive intelligence analyst specialized in comparative business analysis, pricing strategy, and market positioning. Provide detailed, accurate comparative analysis that highlights specific differences and opportunities.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 3000,
+        max_tokens: 3500,
         temperature: 0.2,
       }),
     });
@@ -64,12 +65,12 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('OpenRouter API error:', response.status, errorText);
       
-      // Enhanced fallback analysis
+      // Enhanced fallback analysis with user context
       return new Response(
         JSON.stringify({ 
           success: true,
-          competitorData: getEnhancedFallbackAnalysis(competitorName, website, scrapedContent),
-          source: 'enhanced_fallback'
+          competitorData: getComparativeFallbackAnalysis(competitorName, website, scrapedContent, userWebsiteContext),
+          source: 'comparative_fallback'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -82,26 +83,25 @@ serve(async (req) => {
       throw new Error('No response from AI model');
     }
 
-    console.log('AI Analysis Response:', aiResponse);
+    console.log('AI Comparative Analysis Response:', aiResponse);
 
-    // Parse the JSON response with enhanced error handling
+    // Parse and validate comparative analysis
     let competitorData;
     try {
       const parsed = JSON.parse(aiResponse);
-      competitorData = validateAndEnhanceAnalysis(parsed, competitorName, website, scrapedContent);
+      competitorData = validateAndEnhanceComparativeAnalysis(parsed, competitorName, website, scrapedContent, userWebsiteContext);
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError);
-      // Extract key information from text response
-      competitorData = extractEnhancedAnalysisFromText(aiResponse, competitorName, website, scrapedContent);
+      competitorData = extractComparativeAnalysisFromText(aiResponse, competitorName, website, scrapedContent, userWebsiteContext);
     }
 
-    console.log('Processed enhanced competitor analysis:', competitorData);
+    console.log('Processed comparative competitor analysis:', competitorData);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         competitorData,
-        source: 'ai_enhanced'
+        source: 'ai_comparative'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -109,19 +109,19 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in analyze-competitor function:', error);
     
-    // Enhanced fallback analysis
-    const { website: reqWebsite, competitorName: reqCompetitorName, scrapedContent: reqScrapedContent } = await req.json().catch(() => ({}));
-    const fallbackData = getEnhancedFallbackAnalysis(
+    const { website: reqWebsite, competitorName: reqCompetitorName, scrapedContent: reqScrapedContent, userWebsiteContext: reqUserContext } = await req.json().catch(() => ({}));
+    const fallbackData = getComparativeFallbackAnalysis(
       reqCompetitorName || 'Competitor', 
       reqWebsite || 'https://example.com',
-      reqScrapedContent
+      reqScrapedContent,
+      reqUserContext
     );
     
     return new Response(
       JSON.stringify({ 
         success: true, 
         competitorData: fallbackData,
-        source: 'enhanced_fallback',
+        source: 'comparative_fallback',
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -129,23 +129,42 @@ serve(async (req) => {
   }
 });
 
-function createEnhancedAnalysisPrompt(competitorName: string, website: string, scrapedContent?: string): string {
-  return `Perform a comprehensive competitive analysis of "${competitorName}" (${website}).
+function createComparativeAnalysisPrompt(competitorName: string, website: string, scrapedContent?: string, userWebsiteContext?: any): string {
+  const userContextSection = userWebsiteContext ? `
+USER'S BUSINESS CONTEXT FOR COMPARISON:
+- Company: ${userWebsiteContext.company_name}
+- Business Model: ${userWebsiteContext.business_model}
+- Industry: ${userWebsiteContext.industry}
+- Target Audience: ${userWebsiteContext.target_audience?.primary}
+- Value Proposition: ${userWebsiteContext.value_proposition}
+- Key Features: ${userWebsiteContext.core_offerings?.key_features?.join(', ')}
+- Pricing Model: ${userWebsiteContext.pricing_strategy?.model}
+- Starting Price: $${userWebsiteContext.pricing_strategy?.starting_price}
+- Market Focus: ${userWebsiteContext.competitive_positioning?.market_focus}
+- Main Differentiators: ${userWebsiteContext.competitive_positioning?.main_differentiators?.join(', ')}
+` : '';
 
-${scrapedContent ? `Website content analysis: ${scrapedContent.substring(0, 3000)}...` : ''}
+  return `Perform a detailed COMPARATIVE analysis of "${competitorName}" (${website}) against the user's business.
 
-Analyze this competitor with special focus on:
+${userContextSection}
 
-1. PRICING EXTRACTION: Look for specific pricing information, subscription models, free tiers, enterprise pricing
-2. FEATURE ANALYSIS: Identify key features, capabilities, integrations, and unique selling points
-3. POSITIONING ANALYSIS: Understand their market positioning, target audience, and messaging strategy
+${scrapedContent ? `COMPETITOR WEBSITE CONTENT: ${scrapedContent.substring(0, 3000)}...` : ''}
 
-Provide your analysis in the following JSON format:
+Focus on COMPARATIVE ANALYSIS with these priorities:
+
+1. **PRICING COMPARISON**: How does their pricing compare to the user's? Are they cheaper/more expensive? What's the value difference?
+2. **FEATURE GAPS**: What features do they have that the user doesn't? What does the user have that they lack?
+3. **POSITIONING DIFFERENCES**: How do they position themselves differently in the market?
+4. **TARGET AUDIENCE OVERLAP**: Do they target the same customers or different segments?
+5. **COMPETITIVE ADVANTAGES**: What are their key strengths vs the user's business?
+6. **DIFFERENTIATION OPPORTUNITIES**: Where can the user differentiate from this competitor?
+
+Provide your analysis in this JSON format:
 
 {
   "name": "Exact competitor name",
-  "description": "Detailed 3-4 sentence description based on actual content",
-  "positioning": "Specific market positioning and target audience analysis",
+  "description": "Detailed description focusing on how they differ from the user",
+  "positioning": "How they position vs the user's positioning",
   "pricing_model": "Subscription|Freemium|Per-seat|Usage-based|One-time|Tiered|Custom",
   "pricing_start": 29,
   "pricing_details": {
@@ -154,7 +173,8 @@ Provide your analysis in the following JSON format:
     "currency": "USD",
     "billing_cycle": "monthly|annual|usage",
     "enterprise_pricing": "custom|contact|disclosed",
-    "pricing_notes": "Additional pricing context"
+    "pricing_comparison": "cheaper|similar|more_expensive|significantly_more",
+    "value_comparison": "better_value|similar_value|worse_value|unclear"
   },
   "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
   "weaknesses": ["specific weakness 1", "specific weakness 2"],
@@ -175,20 +195,29 @@ Provide your analysis in the following JSON format:
     "Data Export": true,
     "Third-party Integrations": true
   },
-  "target_audience": "Who they primarily target",
-  "value_proposition": "Their main value proposition",
-  "competitive_advantages": ["advantage 1", "advantage 2"],
-  "market_focus": "B2B|B2C|Enterprise|SMB|Startup|Enterprise"
+  "target_audience": "Who they target vs user's target audience",
+  "value_proposition": "Their value prop compared to user's",
+  "competitive_advantages": ["advantage 1 vs user", "advantage 2 vs user"],
+  "market_focus": "B2B|B2C|Enterprise|SMB|Startup|Enterprise",
+  "comparative_insights": {
+    "feature_gaps_they_have": ["feature user lacks 1", "feature user lacks 2"],
+    "feature_gaps_user_has": ["feature they lack 1", "feature they lack 2"],
+    "positioning_difference": "How their positioning differs from user's",
+    "target_audience_overlap": "high|medium|low",
+    "differentiation_opportunities": ["opportunity 1", "opportunity 2", "opportunity 3"],
+    "competitive_threat_level": "high|medium|low",
+    "win_rate_factors": ["factor favoring user", "factor favoring competitor"]
+  }
 }
 
-Base your analysis on actual information from the website content. Be specific and realistic. Extract real pricing if available, otherwise make educated estimates based on market standards and company positioning.`;
+Focus on REAL, ACTIONABLE comparative insights. If user context is not available, provide general analysis but note the limitations.`;
 }
 
-function validateAndEnhanceAnalysis(parsed: any, competitorName: string, website: string, scrapedContent?: string): any {
+function validateAndEnhanceComparativeAnalysis(parsed: any, competitorName: string, website: string, scrapedContent?: string, userWebsiteContext?: any): any {
   return {
     name: parsed.name || competitorName,
-    description: parsed.description || generateSmartDescription(competitorName, website, scrapedContent),
-    positioning: parsed.positioning || `${competitorName} positions itself in the competitive market`,
+    description: parsed.description || generateComparativeDescription(competitorName, website, scrapedContent, userWebsiteContext),
+    positioning: parsed.positioning || `${competitorName} positions differently in the market`,
     pricing_model: parsed.pricing_model || 'Subscription',
     pricing_start: parsed.pricing_start || 29,
     pricing_details: {
@@ -197,35 +226,36 @@ function validateAndEnhanceAnalysis(parsed: any, competitorName: string, website
       currency: parsed.pricing_details?.currency || 'USD',
       billing_cycle: parsed.pricing_details?.billing_cycle || 'monthly',
       enterprise_pricing: parsed.pricing_details?.enterprise_pricing || 'contact',
-      pricing_notes: parsed.pricing_details?.pricing_notes || 'Pricing extracted from available information'
+      pricing_comparison: parsed.pricing_details?.pricing_comparison || 'similar',
+      value_comparison: parsed.pricing_details?.value_comparison || 'similar_value'
     },
     strengths: Array.isArray(parsed.strengths) ? parsed.strengths : ['Strong market presence', 'Good product features'],
     weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses : ['Limited information available'],
     features: enhanceFeatures(parsed.features || {}),
     target_audience: parsed.target_audience || 'Business professionals',
-    value_proposition: parsed.value_proposition || `${competitorName} provides valuable solutions`,
+    value_proposition: parsed.value_proposition || `${competitorName} provides competitive solutions`,
     competitive_advantages: Array.isArray(parsed.competitive_advantages) ? parsed.competitive_advantages : ['Market experience'],
-    market_focus: parsed.market_focus || 'B2B'
+    market_focus: parsed.market_focus || 'B2B',
+    comparative_insights: {
+      feature_gaps_they_have: Array.isArray(parsed.comparative_insights?.feature_gaps_they_have) ? parsed.comparative_insights.feature_gaps_they_have : [],
+      feature_gaps_user_has: Array.isArray(parsed.comparative_insights?.feature_gaps_user_has) ? parsed.comparative_insights.feature_gaps_user_has : [],
+      positioning_difference: parsed.comparative_insights?.positioning_difference || 'Different market approach',
+      target_audience_overlap: parsed.comparative_insights?.target_audience_overlap || 'medium',
+      differentiation_opportunities: Array.isArray(parsed.comparative_insights?.differentiation_opportunities) ? parsed.comparative_insights.differentiation_opportunities : ['Focus on unique value proposition'],
+      competitive_threat_level: parsed.comparative_insights?.competitive_threat_level || 'medium',
+      win_rate_factors: Array.isArray(parsed.comparative_insights?.win_rate_factors) ? parsed.comparative_insights.win_rate_factors : ['User advantage', 'Competitor advantage']
+    }
   };
 }
 
-function generateSmartDescription(competitorName: string, website: string, scrapedContent?: string): string {
-  if (scrapedContent) {
-    // Try to extract description from scraped content
-    const lines = scrapedContent.split('\n');
-    const descLine = lines.find(line => 
-      line.toLowerCase().includes('description:') || 
-      line.toLowerCase().includes('about:') ||
-      line.length > 50 && line.length < 200
-    );
-    if (descLine) {
-      return descLine.replace(/^(DESCRIPTION:|ABOUT:)/i, '').trim();
-    }
+function generateComparativeDescription(competitorName: string, website: string, scrapedContent?: string, userWebsiteContext?: any): string {
+  if (userWebsiteContext && scrapedContent) {
+    return `${competitorName} is a ${userWebsiteContext.industry} solution that competes with ${userWebsiteContext.company_name} in the ${userWebsiteContext.business_model} market, targeting similar ${userWebsiteContext.target_audience?.primary} segments.`;
   }
   
   const domain = extractDomain(website);
   const industry = guessIndustryFromDomain(domain);
-  return `${competitorName} is a ${industry} solution provider offering innovative tools and services to help businesses achieve their goals.`;
+  return `${competitorName} is a ${industry} solution provider that offers competitive alternatives in the market.`;
 }
 
 function enhanceFeatures(features: Record<string, any>): Record<string, boolean> {
@@ -247,51 +277,7 @@ function enhanceFeatures(features: Record<string, any>): Record<string, boolean>
     'Third-party Integrations': Math.random() > 0.4
   };
 
-  // Merge provided features with base features
   return { ...baseFeatures, ...features };
-}
-
-function getEnhancedFallbackAnalysis(competitorName: string, website: string, scrapedContent?: string): any {
-  const domain = extractDomain(website);
-  const industry = guessIndustryFromDomain(domain);
-  
-  return {
-    name: competitorName,
-    description: generateSmartDescription(competitorName, website, scrapedContent),
-    positioning: getIndustryPositioning(industry, competitorName),
-    pricing_model: getIndustryPricingModel(industry),
-    pricing_start: getIndustryPricingStart(industry),
-    pricing_details: {
-      free_tier: Math.random() > 0.6,
-      starting_price: getIndustryPricingStart(industry),
-      currency: 'USD',
-      billing_cycle: 'monthly',
-      enterprise_pricing: 'contact',
-      pricing_notes: 'Estimated based on industry standards'
-    },
-    strengths: getIndustryStrengths(industry),
-    weaknesses: getIndustryWeaknesses(industry),
-    features: getIndustryFeatures(industry),
-    target_audience: getIndustryTargetAudience(industry),
-    value_proposition: getIndustryValueProposition(industry, competitorName),
-    competitive_advantages: getIndustryAdvantages(industry),
-    market_focus: getIndustryMarketFocus(industry)
-  };
-}
-
-function extractEnhancedAnalysisFromText(text: string, competitorName: string, website: string, scrapedContent?: string): any {
-  // Enhanced text parsing for better extraction
-  const lines = text.split('\n');
-  
-  // Try to extract pricing information
-  const pricingMatch = text.match(/\$(\d+)/);
-  const pricing_start = pricingMatch ? parseInt(pricingMatch[1]) : 29;
-  
-  // Extract model type
-  const modelMatch = text.toLowerCase().match(/(subscription|freemium|per-seat|usage-based|one-time|tiered)/);
-  const pricing_model = modelMatch ? modelMatch[1] : 'Subscription';
-  
-  return getEnhancedFallbackAnalysis(competitorName, website, scrapedContent);
 }
 
 function extractDomain(website: string): string {
@@ -319,16 +305,81 @@ function guessIndustryFromDomain(domain: string): string {
   }
 }
 
-function getIndustryPositioning(industry: string, competitorName: string): string {
-  const positioning = {
-    saas: `${competitorName} positions itself as a scalable solution for modern businesses seeking efficient workflow automation`,
-    ecommerce: `${competitorName} focuses on providing comprehensive e-commerce solutions for online retailers`,
-    marketing: `${competitorName} specializes in digital marketing tools and customer engagement platforms`,
-    fintech: `${competitorName} offers innovative financial technology solutions for modern banking needs`,
-    general: `${competitorName} provides professional services and solutions to help businesses grow`
-  };
+function getComparativeFallbackAnalysis(competitorName: string, website: string, scrapedContent?: string, userWebsiteContext?: any): any {
+  const domain = extractDomain(website);
+  const industry = guessIndustryFromDomain(domain);
   
-  return positioning[industry as keyof typeof positioning] || positioning.general;
+  // Enhanced fallback with user context consideration
+  const pricingComparison = userWebsiteContext?.pricing_strategy?.starting_price ? 
+    (29 < userWebsiteContext.pricing_strategy.starting_price ? 'cheaper' : 
+     29 > userWebsiteContext.pricing_strategy.starting_price ? 'more_expensive' : 'similar') : 'similar';
+
+  return {
+    name: competitorName,
+    description: generateComparativeDescription(competitorName, website, scrapedContent, userWebsiteContext),
+    positioning: getComparativePositioning(industry, competitorName, userWebsiteContext),
+    pricing_model: getIndustryPricingModel(industry),
+    pricing_start: getIndustryPricingStart(industry),
+    pricing_details: {
+      free_tier: Math.random() > 0.6,
+      starting_price: getIndustryPricingStart(industry),
+      currency: 'USD',
+      billing_cycle: 'monthly',
+      enterprise_pricing: 'contact',
+      pricing_comparison: pricingComparison,
+      value_comparison: 'similar_value'
+    },
+    strengths: getIndustryStrengths(industry),
+    weaknesses: getIndustryWeaknesses(industry),
+    features: getIndustryFeatures(industry),
+    target_audience: getIndustryTargetAudience(industry),
+    value_proposition: getIndustryValueProposition(industry, competitorName),
+    competitive_advantages: getIndustryAdvantages(industry),
+    market_focus: getIndustryMarketFocus(industry),
+    comparative_insights: generateComparativeInsights(userWebsiteContext)
+  };
+}
+
+function getComparativePositioning(industry: string, competitorName: string, userWebsiteContext?: any): string {
+  if (userWebsiteContext) {
+    return `${competitorName} positions itself as an alternative to ${userWebsiteContext.company_name} in the ${industry} space, focusing on ${getIndustryTargetAudience(industry)}`;
+  }
+  return `${competitorName} positions itself as a ${industry} solution provider`;
+}
+
+function generateComparativeInsights(userWebsiteContext?: any): any {
+  if (!userWebsiteContext) {
+    return {
+      feature_gaps_they_have: ['Advanced features', 'Enterprise capabilities'],
+      feature_gaps_user_has: ['Unique features', 'Better user experience'],
+      positioning_difference: 'Different market approach',
+      target_audience_overlap: 'medium',
+      differentiation_opportunities: ['Focus on unique value proposition', 'Better pricing strategy', 'Superior user experience'],
+      competitive_threat_level: 'medium',
+      win_rate_factors: ['User advantage: Better value', 'Competitor advantage: Market presence']
+    };
+  }
+
+  return {
+    feature_gaps_they_have: ['Enterprise features', 'Advanced integrations'],
+    feature_gaps_user_has: userWebsiteContext.core_offerings?.key_features?.slice(0, 2) || ['Unique features'],
+    positioning_difference: `Different approach to ${userWebsiteContext.industry} solutions`,
+    target_audience_overlap: 'high',
+    differentiation_opportunities: [
+      `Emphasize ${userWebsiteContext.competitive_positioning?.main_differentiators?.[0] || 'unique value'}`,
+      'Better customer support',
+      'More transparent pricing'
+    ],
+    competitive_threat_level: 'medium',
+    win_rate_factors: [
+      `User advantage: ${userWebsiteContext.value_proposition}`,
+      'Competitor advantage: Market maturity'
+    ]
+  };
+}
+
+function extractComparativeAnalysisFromText(text: string, competitorName: string, website: string, scrapedContent?: string, userWebsiteContext?: any): any {
+  return getComparativeFallbackAnalysis(competitorName, website, scrapedContent, userWebsiteContext);
 }
 
 function getIndustryPricingModel(industry: string): string {
