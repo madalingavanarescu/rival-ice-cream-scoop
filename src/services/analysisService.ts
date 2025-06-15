@@ -26,7 +26,7 @@ export class AnalysisService {
         name: `${companyName} Competitor Analysis`,
         website: website,
         status: 'pending',
-        user_id: user.id  // Set the user_id explicitly
+        user_id: user.id
       })
       .select('id')
       .single();
@@ -43,13 +43,13 @@ export class AnalysisService {
   static async startAnalysis(analysisId: string): Promise<void> {
     console.log('Starting analysis for ID:', analysisId);
     
-    // Update status to analyzing
-    await supabase
-      .from('analyses')
-      .update({ status: 'analyzing', updated_at: new Date().toISOString() })
-      .eq('id', analysisId);
-
     try {
+      // Update status to analyzing
+      await supabase
+        .from('analyses')
+        .update({ status: 'analyzing', updated_at: new Date().toISOString() })
+        .eq('id', analysisId);
+
       // Get the analysis details
       const { data: analysis } = await supabase
         .from('analyses')
@@ -59,14 +59,17 @@ export class AnalysisService {
 
       if (!analysis) throw new Error('Analysis not found');
 
+      console.log('Discovering competitors...');
       // Discover competitors using AI
       const competitors = await CompetitorDiscoveryService.discoverCompetitors(analysis.website);
       
+      console.log('Analyzing competitors...');
       // Analyze each competitor
       const competitorPromises = competitors.map(async (comp) => {
+        console.log('Analyzing competitor:', comp.name);
         const competitorData = await CompetitorAnalysisService.analyzeCompetitor(comp.website);
         
-        return supabase
+        const { error } = await supabase
           .from('competitors')
           .insert({
             analysis_id: analysisId,
@@ -80,13 +83,20 @@ export class AnalysisService {
             weaknesses: competitorData.weaknesses,
             features: competitorData.features
           });
+        
+        if (error) {
+          console.error('Error inserting competitor:', error);
+          throw error;
+        }
       });
 
       await Promise.all(competitorPromises);
 
+      console.log('Generating differentiation angles...');
       // Generate differentiation angles
-      const angles = await DifferentiationService.generateAngles(analysisId, analysis.website);
-      
+      await DifferentiationService.generateAngles(analysisId, analysis.website);
+
+      console.log('Generating content...');
       // Generate content for different formats
       await ContentGenerationService.generateAllContent(analysisId);
 
@@ -194,6 +204,9 @@ export class CompetitorDiscoveryService {
   static async discoverCompetitors(website: string): Promise<{ name: string; website: string }[]> {
     console.log('Discovering competitors for:', website);
     
+    // Add a small delay to simulate processing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     // This would typically use AI to discover competitors
     // For now, we'll return some realistic competitors based on common patterns
     const domain = new URL(website.startsWith('http') ? website : `https://${website}`).hostname;
@@ -250,6 +263,9 @@ export class CompetitorDiscoveryService {
 export class CompetitorAnalysisService {
   static async analyzeCompetitor(website: string) {
     console.log('Analyzing competitor:', website);
+    
+    // Add a small delay to simulate processing
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Simulate web scraping and AI analysis
     const companyName = this.extractCompanyName(website);
@@ -351,6 +367,9 @@ export class DifferentiationService {
   static async generateAngles(analysisId: string, userWebsite: string): Promise<void> {
     console.log('Generating differentiation angles for analysis:', analysisId);
     
+    // Add a small delay to simulate processing
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const angles = [
       {
         title: 'User Experience Simplification',
@@ -379,16 +398,21 @@ export class DifferentiationService {
       }
     ];
 
-    const insertPromises = angles.map(angle => 
-      supabase
+    const insertPromises = angles.map(async angle => {
+      const { error } = await supabase
         .from('differentiation_angles')
         .insert({
           analysis_id: analysisId,
           title: angle.title,
           description: angle.description,
           opportunity_level: angle.opportunity_level
-        })
-    );
+        });
+      
+      if (error) {
+        console.error('Error inserting differentiation angle:', error);
+        throw error;
+      }
+    });
 
     await Promise.all(insertPromises);
   }
@@ -398,6 +422,9 @@ export class DifferentiationService {
 export class ContentGenerationService {
   static async generateAllContent(analysisId: string): Promise<void> {
     console.log('Generating all content types for analysis:', analysisId);
+    
+    // Add a small delay to simulate processing
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Get analysis and competitors data
     const { data: analysis } = await supabase
@@ -434,13 +461,18 @@ export class ContentGenerationService {
     const contentPromises = contentTypes.map(async (contentType) => {
       const content = await contentType.generator(transformedAnalysis, transformedCompetitors, transformedAngles);
       
-      return supabase
+      const { error } = await supabase
         .from('analysis_content')
         .insert({
           analysis_id: analysisId,
           content_type: contentType.type,
           content: content
         });
+      
+      if (error) {
+        console.error('Error inserting content:', error);
+        throw error;
+      }
     });
 
     await Promise.all(contentPromises);

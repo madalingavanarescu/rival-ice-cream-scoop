@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnalysisService } from '@/services/analysisService';
@@ -49,19 +48,25 @@ export const useCreateAnalysis = () => {
 
   return useMutation({
     mutationFn: async ({ website, companyName }: { website: string; companyName: string }) => {
+      console.log('Creating analysis for:', website, companyName);
       const analysisId = await AnalysisService.createAnalysis(website, companyName);
       
-      // Start the analysis process in the background
-      AnalysisService.startAnalysis(analysisId).catch(error => {
-        console.error('Background analysis failed:', error);
-        toast.error('Analysis failed. Please try again.');
-      });
+      // Start the analysis process in the background with better error handling
+      setTimeout(async () => {
+        try {
+          await AnalysisService.startAnalysis(analysisId);
+        } catch (error) {
+          console.error('Background analysis failed:', error);
+          // Don't show toast here as we'll catch it in the status polling
+        }
+      }, 100);
       
       return analysisId;
     },
     onSuccess: (analysisId) => {
       queryClient.invalidateQueries({ queryKey: ['analyses'] });
       toast.success('Analysis started! This may take a few minutes.');
+      console.log('Analysis created with ID:', analysisId);
     },
     onError: (error) => {
       console.error('Error creating analysis:', error);
@@ -73,17 +78,22 @@ export const useCreateAnalysis = () => {
 // Real-time status updates for analyses
 export const useAnalysisStatus = (analysisId: string) => {
   const [status, setStatus] = useState<string>('pending');
+  const [lastError, setLastError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!analysisId) return;
 
-    // Poll for status updates every 5 seconds
+    console.log('Starting status polling for analysis:', analysisId);
+
+    // Poll for status updates every 3 seconds
     const interval = setInterval(async () => {
       try {
         const analysis = await AnalysisService.getAnalysis(analysisId);
         if (analysis && analysis.status !== status) {
+          console.log('Status updated from', status, 'to', analysis.status);
           setStatus(analysis.status);
+          setLastError(null);
           
           if (analysis.status === 'completed') {
             // Invalidate queries to refresh data
@@ -95,17 +105,23 @@ export const useAnalysisStatus = (analysisId: string) => {
             toast.success('Competitor analysis completed!');
             clearInterval(interval);
           } else if (analysis.status === 'failed') {
+            setLastError('Analysis failed. Please try again.');
             toast.error('Analysis failed. Please try again.');
             clearInterval(interval);
           }
         }
       } catch (error) {
         console.error('Error checking analysis status:', error);
+        setLastError('Error checking analysis status');
+        // Don't clear interval, keep trying
       }
-    }, 5000);
+    }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      console.log('Cleaning up status polling for analysis:', analysisId);
+      clearInterval(interval);
+    };
   }, [analysisId, status, queryClient]);
 
-  return { status, setStatus };
+  return { status, setStatus, lastError };
 };
