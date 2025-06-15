@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,17 +25,31 @@ const Onboarding = () => {
   const handleWebsiteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (website) {
-      setStep(2);
+      // If user is already logged in, skip to step 3 (company info) instead of step 2 (user info)
+      if (session.user) {
+        setStep(3);
+      } else {
+        setStep(2);
+      }
     }
   };
 
   const handleUserInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && companyName) {
+      // This step is only reached if user is not logged in
+      // In that case, redirect them to auth page first
+      navigate("/auth");
+    }
+  };
+
+  const handleCompanyInfoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (companyName) {
       try {
         const id = await createAnalysis.mutateAsync({ website, companyName });
         setAnalysisId(id);
-        setStep(3);
+        setStep(4); // Move to analysis in progress step
       } catch (error) {
         console.error('Failed to start analysis:', error);
         toast.error('Failed to start analysis. Please try again.');
@@ -42,25 +57,21 @@ const Onboarding = () => {
     }
   };
 
-  // Auto-advance to step 4 when analysis completes
+  // Auto-advance to step 5 when analysis completes
   React.useEffect(() => {
-    if (status === 'completed' && step === 3) {
-      setStep(4);
+    if (status === 'completed' && step === 4) {
+      setStep(5);
     }
   }, [status, step]);
 
-  // Redirect to sign in if not logged in for step 2+
+  // Redirect to sign in if not logged in for step 3+
   React.useEffect(() => {
-    if (step >= 2 && !session.user && !session.isLoaded) {
-      // If the session isn't loaded, don't redirect yet
-      return;
-    }
-    if (step >= 2 && !session.user) {
+    if (step >= 3 && !session.user && session.isLoaded) {
       navigate("/auth");
     }
   }, [step, session.user, session.isLoaded, navigate]);
 
-  const progressValue = (step / 4) * 100;
+  const progressValue = (step / 5) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -73,7 +84,7 @@ const Onboarding = () => {
               <span className="text-2xl font-bold text-gray-900">CompeteAI</span>
             </Link>
             <div className="text-sm text-gray-600">
-              Step {step} of 4
+              Step {step} of 5
             </div>
           </div>
         </div>
@@ -124,7 +135,7 @@ const Onboarding = () => {
                 <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Bot className="h-8 w-8 text-green-600" />
                 </div>
-                <CardTitle className="text-2xl">Great! Now let's get you set up</CardTitle>
+                <CardTitle className="text-2xl">Sign up to continue</CardTitle>
                 <p className="text-gray-600">
                   We'll send your competitor analysis to your email and create your account.
                 </p>
@@ -159,6 +170,41 @@ const Onboarding = () => {
                       className="text-lg py-3"
                     />
                   </div>
+                  <Button type="submit" size="lg" className="w-full">
+                    Continue to Sign Up
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 3 && (
+            <Card>
+              <CardHeader className="text-center">
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Bot className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-2xl">Tell us about your company</CardTitle>
+                <p className="text-gray-600">
+                  This helps us create a more relevant competitive analysis for you.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCompanyInfoSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <Input
+                      id="company"
+                      type="text"
+                      placeholder="Your Company"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      required
+                      className="text-lg py-3"
+                    />
+                  </div>
                   <Button 
                     type="submit" 
                     size="lg" 
@@ -179,7 +225,7 @@ const Onboarding = () => {
             </Card>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <Card>
               <CardHeader className="text-center">
                 <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -224,7 +270,7 @@ const Onboarding = () => {
             </Card>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <Card>
               <CardHeader className="text-center">
                 <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -263,9 +309,11 @@ const Onboarding = () => {
                   </Button>
                 </div>
                 
-                <p className="text-center text-sm text-gray-600">
-                  We've also sent a copy to {email}
-                </p>
+                {session.user?.email && (
+                  <p className="text-center text-sm text-gray-600">
+                    We've also sent a copy to {session.user.email}
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}

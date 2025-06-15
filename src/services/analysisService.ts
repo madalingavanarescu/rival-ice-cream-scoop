@@ -14,12 +14,19 @@ export class AnalysisService {
   static async createAnalysis(website: string, companyName: string): Promise<string> {
     console.log('Creating new analysis for:', website);
     
+    // Get the current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User must be authenticated to create analysis');
+    }
+    
     const { data, error } = await supabase
       .from('analyses')
       .insert({
         name: `${companyName} Competitor Analysis`,
         website: website,
-        status: 'pending'
+        status: 'pending',
+        user_id: user.id  // Set the user_id explicitly
       })
       .select('id')
       .single();
