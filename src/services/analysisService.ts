@@ -59,13 +59,13 @@ export class AnalysisService {
 
       if (!analysis) throw new Error('Analysis not found');
 
-      console.log('Discovering competitors...');
-      // Discover competitors using real search (will be enhanced in Phase 1B)
-      const competitors = await CompetitorDiscoveryService.discoverCompetitors(analysis.website);
+      console.log('Discovering competitors using AI...');
+      // Use the new AI-powered competitor discovery
+      const competitorData = await this.discoverCompetitorsWithAI(analysis.website, analysis.name);
       
       console.log('Analyzing competitors with real web scraping...');
       // Analyze each competitor using real web scraping
-      const competitorPromises = competitors.map(async (comp) => {
+      const competitorPromises = competitorData.competitors.map(async (comp: any) => {
         console.log('Scraping and analyzing competitor:', comp.name);
         
         try {
@@ -139,6 +139,32 @@ export class AnalysisService {
         .eq('id', analysisId);
       
       throw error;
+    }
+  }
+
+  private static async discoverCompetitorsWithAI(website: string, companyName?: string): Promise<{ competitors: any[] }> {
+    console.log('Using AI to discover competitors for:', website);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('discover-competitors', {
+        body: { 
+          website,
+          companyName 
+        }
+      });
+
+      if (error) {
+        console.error('Error in AI competitor discovery:', error);
+        // Fallback to basic discovery
+        return { competitors: CompetitorDiscoveryService.getBasicCompetitors(website) };
+      }
+
+      console.log('AI competitor discovery result:', data);
+      return data;
+    } catch (error) {
+      console.error('Error calling discover-competitors function:', error);
+      // Fallback to basic discovery
+      return { competitors: CompetitorDiscoveryService.getBasicCompetitors(website) };
     }
   }
 
@@ -244,55 +270,36 @@ export class AnalysisService {
   }
 }
 
-// Enhanced Competitor Discovery Service with real search capabilities
+// Enhanced Competitor Discovery Service with AI capabilities
 export class CompetitorDiscoveryService {
   static async discoverCompetitors(website: string): Promise<{ name: string; website: string }[]> {
     console.log('Discovering competitors for:', website);
     
     try {
-      // For now, we'll use an enhanced version of the industry detection
-      // In Phase 1B, this will be replaced with real search API calls
-      const domain = new URL(website.startsWith('http') ? website : `https://${website}`).hostname;
-      const industry = await this.guessIndustry(domain);
-      
-      // Get more realistic competitors based on the website
-      const competitors = this.getIndustryCompetitors(industry, domain);
-      
-      console.log('Found competitors:', competitors);
-      return competitors;
+      // Use the new AI-powered discovery
+      const result = await supabase.functions.invoke('discover-competitors', {
+        body: { website }
+      });
+
+      if (result.error || !result.data?.competitors) {
+        console.error('AI discovery failed, using fallback:', result.error);
+        return this.getBasicCompetitors(website);
+      }
+
+      return result.data.competitors.map((comp: any) => ({
+        name: comp.name,
+        website: comp.website
+      }));
     } catch (error) {
       console.error('Error discovering competitors:', error);
-      // Fallback to basic competitors
-      return this.getCommonCompetitors('general');
+      return this.getBasicCompetitors(website);
     }
   }
 
-  private static async guessIndustry(domain: string): Promise<string> {
-    // Enhanced industry detection
-    const domainLower = domain.toLowerCase();
+  static getBasicCompetitors(website: string): { name: string; website: string }[] {
+    const domain = this.extractDomain(website);
+    const industry = this.guessIndustry(domain);
     
-    if (domainLower.includes('shop') || domainLower.includes('store') || 
-        domainLower.includes('commerce') || domainLower.includes('retail')) {
-      return 'ecommerce';
-    } else if (domainLower.includes('tech') || domainLower.includes('app') || 
-               domainLower.includes('software') || domainLower.includes('saas')) {
-      return 'saas';
-    } else if (domainLower.includes('marketing') || domainLower.includes('agency') ||
-               domainLower.includes('digital') || domainLower.includes('seo')) {
-      return 'marketing';
-    } else if (domainLower.includes('finance') || domainLower.includes('bank') ||
-               domainLower.includes('fintech') || domainLower.includes('payment')) {
-      return 'fintech';
-    } else if (domainLower.includes('health') || domainLower.includes('medical') ||
-               domainLower.includes('wellness') || domainLower.includes('fitness')) {
-      return 'healthcare';
-    } else {
-      return 'general';
-    }
-  }
-
-  private static getIndustryCompetitors(industry: string, userDomain: string): { name: string; website: string }[] {
-    // More realistic competitors based on industry
     const competitors = {
       saas: [
         { name: 'Notion', website: 'https://notion.so' },
@@ -313,20 +320,8 @@ export class CompetitorDiscoveryService {
         { name: 'Salesforce', website: 'https://salesforce.com' },
         { name: 'Marketo', website: 'https://marketo.com' }
       ],
-      fintech: [
-        { name: 'Stripe', website: 'https://stripe.com' },
-        { name: 'Square', website: 'https://squareup.com' },
-        { name: 'PayPal', website: 'https://paypal.com' },
-        { name: 'Plaid', website: 'https://plaid.com' }
-      ],
-      healthcare: [
-        { name: 'Epic Systems', website: 'https://epic.com' },
-        { name: 'Cerner', website: 'https://cerner.com' },
-        { name: 'Teladoc', website: 'https://teladoc.com' },
-        { name: 'Veracyte', website: 'https://veracyte.com' }
-      ],
       general: [
-        { name: 'Microsoft', website: 'https://microsoft.com' },
+        { name: 'Microsoft 365', website: 'https://microsoft.com' },
         { name: 'Google Workspace', website: 'https://workspace.google.com' },
         { name: 'Slack', website: 'https://slack.com' }
       ]
@@ -335,34 +330,30 @@ export class CompetitorDiscoveryService {
     return competitors[industry as keyof typeof competitors] || competitors.general;
   }
 
-  private static getCommonCompetitors(industry: string): { name: string; website: string }[] {
-    const competitors = {
-      saas: [
-        { name: 'Competitor A', website: 'https://competitor-a.com' },
-        { name: 'Competitor B', website: 'https://competitor-b.com' },
-        { name: 'Industry Leader', website: 'https://industry-leader.com' },
-        { name: 'StartupRival', website: 'https://startup-rival.com' },
-        { name: 'BigCorpSolution', website: 'https://bigcorp-solution.com' }
-      ],
-      ecommerce: [
-        { name: 'ShopRival', website: 'https://shop-rival.com' },
-        { name: 'EcomLeader', website: 'https://ecom-leader.com' },
-        { name: 'MarketPlace Pro', website: 'https://marketplace-pro.com' },
-        { name: 'RetailGiant', website: 'https://retail-giant.com' }
-      ],
-      marketing: [
-        { name: 'AgencyPro', website: 'https://agency-pro.com' },
-        { name: 'MarketingMaster', website: 'https://marketing-master.com' },
-        { name: 'DigitalExperts', website: 'https://digital-experts.com' }
-      ],
-      general: [
-        { name: 'DirectCompetitor', website: 'https://direct-competitor.com' },
-        { name: 'AlternativeSolution', website: 'https://alternative-solution.com' },
-        { name: 'IndustryPlayer', website: 'https://industry-player.com' }
-      ]
-    };
+  private static extractDomain(website: string): string {
+    try {
+      const url = new URL(website.startsWith('http') ? website : `https://${website}`);
+      return url.hostname.replace('www.', '');
+    } catch {
+      return website.toLowerCase();
+    }
+  }
 
-    return competitors[industry as keyof typeof competitors] || competitors.general;
+  private static guessIndustry(domain: string): string {
+    const domainLower = domain.toLowerCase();
+    
+    if (domainLower.includes('shop') || domainLower.includes('store') || 
+        domainLower.includes('commerce') || domainLower.includes('retail')) {
+      return 'ecommerce';
+    } else if (domainLower.includes('tech') || domainLower.includes('app') || 
+               domainLower.includes('software') || domainLower.includes('saas')) {
+      return 'saas';
+    } else if (domainLower.includes('marketing') || domainLower.includes('agency') ||
+               domainLower.includes('digital') || domainLower.includes('seo')) {
+      return 'marketing';
+    } else {
+      return 'general';
+    }
   }
 }
 
