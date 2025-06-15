@@ -11,6 +11,11 @@ import {
 } from '@/types/database';
 import { WebsiteContextService } from './websiteContextService';
 
+interface EdgeFunctionResponse {
+  data?: any;
+  error?: any;
+}
+
 export class AnalysisService {
   static async createAnalysis(website: string, companyName: string): Promise<string> {
     console.log('Creating new analysis for:', website);
@@ -128,24 +133,24 @@ export class AnalysisService {
       
       while (discoveryRetries <= maxDiscoveryRetries && !competitorData?.competitors?.length) {
         try {
-          const { data, error } = await supabase.functions.invoke('discover-competitors', {
+          const response = await supabase.functions.invoke('discover-competitors', {
             body: { 
               website: analysis.website,
               companyName: analysis.name,
               websiteContext: websiteContext
             }
-          });
+          }) as EdgeFunctionResponse;
 
-          if (error) {
-            throw error;
+          if (response.error) {
+            throw response.error;
           }
 
-          if (data?.competitors?.length >= 2) { // Quality threshold: minimum 2 competitors
-            competitorData = data;
-            console.log(`Quality competitor discovery succeeded with ${data.competitors.length} competitors`);
+          if (response.data?.competitors?.length >= 2) { // Quality threshold: minimum 2 competitors
+            competitorData = response.data;
+            console.log(`Quality competitor discovery succeeded with ${response.data.competitors.length} competitors`);
             break;
           } else {
-            throw new Error(`Insufficient competitors found: ${data?.competitors?.length || 0}`);
+            throw new Error(`Insufficient competitors found: ${response.data?.competitors?.length || 0}`);
           }
         } catch (error) {
           console.warn(`Competitor discovery attempt ${discoveryRetries + 1} failed:`, error);
@@ -188,7 +193,7 @@ export class AnalysisService {
             const scrapingResult = await Promise.race([
               scrapingPromise,
               new Promise((_, reject) => setTimeout(() => reject(new Error('Scraping timeout')), 30000))
-            ]);
+            ]) as EdgeFunctionResponse;
 
             // Then analyze with enhanced comparative context
             const analysisPromise = supabase.functions.invoke('analyze-competitor', {
@@ -203,7 +208,7 @@ export class AnalysisService {
             const analysisResult = await Promise.race([
               analysisPromise,
               new Promise((_, reject) => setTimeout(() => reject(new Error('Analysis timeout')), 45000))
-            ]);
+            ]) as EdgeFunctionResponse;
 
             // Validate analysis quality
             if (analysisResult?.data?.success && analysisResult.data.competitorData) {
@@ -565,7 +570,8 @@ ${this.generatePricingRecommendations(userContext, competitors)}
       companyName: websiteContext.company_name,
       businessModel: websiteContext.business_model,
       valueProposition: websiteContext.value_proposition,
-      startingPrice: websiteContext.pricing_strategy?.starting_price
+      startingPrice: websiteContext.pricing_strategy?.starting_price,
+      mainDifferentiators: websiteContext.competitive_positioning?.main_differentiators || []
     } : null;
 
     const highThreatCompetitors = competitors.filter(c => c.comparative_insights?.competitive_threat_level === 'high');
@@ -597,12 +603,12 @@ ${angles.filter(a => a.opportunity_level === 'high').slice(0, 3).map(angle => `-
 
 ${userContext ? `
 **Your Value Proposition**: "${userContext.valueProposition}"
-**Market Differentiation**: ${websiteContext?.competitive_positioning?.main_differentiators?.join(', ') || 'Unique market approach'}
+**Market Differentiation**: ${userContext.mainDifferentiators.join(', ') || 'Unique market approach'}
 ` : ''}
 
 **Win Rate Factors**:
 ${competitors.filter(c => c.comparative_insights?.win_rate_factors).slice(0, 2).map(c => 
-  `- vs ${c.name}: ${c.comparative_insights.win_rate_factors.join(' | ')}`
+  `- vs ${c.name}: ${c.comparative_insights?.win_rate_factors?.join(' | ')}`
 ).join('\n') || '- Competitive analysis in progress'}
 
 ## Next 90-Day Action Plan
@@ -694,14 +700,14 @@ ${comparativeInsights?.feature_gaps_user_has ? comparativeInsights.feature_gaps_
 *"Our customers typically see ${userContext?.mainDifferentiators.includes('cost') ? '30% cost reduction' : '25% efficiency gains'} within 60 days. What would that impact mean for your business?"*
 
 ### Risk Reversal
-*"Unlike ${topCompetitor.name}'s long-term contracts, we offer flexible terms and a ${websiteContext?.pricing_strategy?.trial_period || '30-day'} trial so you can see results before committing."*
+*"Unlike ${topCompetitor.name}'s long-term contracts, we offer flexible terms and a 30-day trial so you can see results before committing."*
 
 ## Next Steps Playbook
 
 1. **Demo Focus**: Highlight ${comparativeInsights?.feature_gaps_user_has?.[0] || 'key differentiators'}
 2. **ROI Calculator**: Show ${userContext?.startingPrice ? `savings vs $${topCompetitor.pricing_start}` : 'value comparison'}
 3. **Reference Connect**: Introduce customer who switched from ${topCompetitor.name}
-4. **Trial Setup**: Fast-track ${websiteContext?.pricing_strategy?.trial_period || 'evaluation'} period
+4. **Trial Setup**: Fast-track evaluation period
 
 ## Win Rate Intel
 
@@ -718,7 +724,8 @@ ${comparativeInsights?.feature_gaps_user_has ? comparativeInsights.feature_gaps_
       companyName: websiteContext.company_name,
       businessModel: websiteContext.business_model,
       startingPrice: websiteContext.pricing_strategy?.starting_price,
-      pricingModel: websiteContext.pricing_strategy?.model
+      pricingModel: websiteContext.pricing_strategy?.model,
+      mainDifferentiators: websiteContext.competitive_positioning?.main_differentiators || []
     } : null;
 
     return `# Competitive Intelligence: ${userContext?.companyName || analysis.name}
@@ -797,7 +804,7 @@ ${competitors.filter(c => c.comparative_insights?.competitive_threat_level === '
 3. **Long-term** (6+ months): ${angles.filter(a => a.opportunity_level === 'medium')[0]?.title || 'Market expansion features'}
 
 ### Marketing & Sales Enablement
-- **Messaging**: Emphasize ${userContext?.competitive_positioning?.main_differentiators?.[0] || 'unique value proposition'}
+- **Messaging**: Emphasize ${userContext?.mainDifferentiators[0] || 'unique value proposition'}
 - **Battle Cards**: Update competitive intel for ${competitors.filter(c => c.comparative_insights?.competitive_threat_level === 'high').map(c => c.name).join(', ') || 'top competitors'}
 - **Case Studies**: Develop wins against ${competitors[0]?.name} focusing on ${angles[0]?.title.toLowerCase() || 'key advantages'}
 

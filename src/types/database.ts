@@ -18,6 +18,16 @@ export interface PricingDetails {
   pricing_notes: string;
 }
 
+export interface ComparativeInsights {
+  competitive_threat_level: 'high' | 'medium' | 'low';
+  target_audience_overlap: 'high' | 'medium' | 'low';
+  pricing_comparison: 'cheaper' | 'similar' | 'more_expensive';
+  feature_gaps_user_has: string[];
+  feature_gaps_they_have: string[];
+  win_rate_factors: string[];
+  differentiation_opportunities: string[];
+}
+
 export interface Competitor {
   id: string;
   analysis_id: string;
@@ -35,6 +45,7 @@ export interface Competitor {
   value_proposition?: string;
   competitive_advantages?: string[];
   market_focus?: 'B2B' | 'B2C' | 'Enterprise' | 'SMB' | 'Startup';
+  comparative_insights?: ComparativeInsights;
   last_analyzed: string;
   created_at: string;
 }
@@ -141,6 +152,7 @@ export const transformCompetitor = (data: any): Competitor => ({
   value_proposition: data.value_proposition,
   competitive_advantages: data.competitive_advantages,
   market_focus: data.market_focus as Competitor['market_focus'],
+  comparative_insights: data.comparative_insights as ComparativeInsights,
   last_analyzed: data.last_analyzed || data.created_at,
   created_at: data.created_at,
 });
