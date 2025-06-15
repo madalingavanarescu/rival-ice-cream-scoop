@@ -79,11 +79,24 @@ export class SubscriptionService {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Use a direct update instead of RPC to avoid TypeScript issues
+    // First get the current count, then increment
+    const { data: currentData, error: fetchError } = await supabase
+      .from('subscribers')
+      .select('analyses_used')
+      .eq('user_id', user.id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching current usage:', fetchError);
+      throw fetchError;
+    }
+
+    const newCount = (currentData?.analyses_used || 0) + 1;
+
     const { error } = await supabase
       .from('subscribers')
       .update({ 
-        analyses_used: supabase.raw('analyses_used + 1'),
+        analyses_used: newCount,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
