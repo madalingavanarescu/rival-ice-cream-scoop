@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnalysisService } from '@/services/analysisService';
 import { Analysis, Competitor, AnalysisContent, DifferentiationAngle } from '@/types/database';
@@ -51,13 +52,13 @@ export const useCreateAnalysis = () => {
       console.log('Creating analysis for:', website, companyName);
       const analysisId = await AnalysisService.createAnalysis(website, companyName);
       
-      // Start the analysis process in the background with better error handling
+      // Start the analysis process in the background
       setTimeout(async () => {
         try {
           await AnalysisService.startAnalysis(analysisId);
+          console.log('Background analysis started successfully');
         } catch (error) {
           console.error('Background analysis failed:', error);
-          // Don't show toast here as we'll catch it in the status polling
         }
       }, 100);
       
@@ -75,19 +76,23 @@ export const useCreateAnalysis = () => {
   });
 };
 
-// Real-time status updates for analyses
+// Optimized real-time status updates for analyses
 export const useAnalysisStatus = (analysisId: string) => {
   const [status, setStatus] = useState<string>('pending');
   const [lastError, setLastError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isPollingRef = useRef(false);
 
   useEffect(() => {
-    if (!analysisId) return;
+    if (!analysisId || isPollingRef.current) {
+      return;
+    }
 
     console.log('Starting status polling for analysis:', analysisId);
+    isPollingRef.current = true;
 
-    // Poll for status updates every 3 seconds
-    const interval = setInterval(async () => {
+    const pollStatus = async () => {
       try {
         const analysis = await AnalysisService.getAnalysis(analysisId);
         if (analysis && analysis.status !== status) {
@@ -103,25 +108,56 @@ export const useAnalysisStatus = (analysisId: string) => {
             queryClient.invalidateQueries({ queryKey: ['differentiationAngles', analysisId] });
             
             toast.success('Competitor analysis completed!');
-            clearInterval(interval);
+            
+            // Stop polling
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            isPollingRef.current = false;
           } else if (analysis.status === 'failed') {
             setLastError('Analysis failed. Please try again.');
             toast.error('Analysis failed. Please try again.');
-            clearInterval(interval);
+            
+            // Stop polling
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            isPollingRef.current = false;
           }
         }
       } catch (error) {
         console.error('Error checking analysis status:', error);
         setLastError('Error checking analysis status');
-        // Don't clear interval, keep trying
+        // Continue polling in case of temporary errors
       }
-    }, 3000);
+    };
 
+    // Start polling
+    intervalRef.current = setInterval(pollStatus, 5000); // Increased to 5 seconds to reduce load
+
+    // Cleanup function
     return () => {
       console.log('Cleaning up status polling for analysis:', analysisId);
-      clearInterval(interval);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      isPollingRef.current = false;
     };
   }, [analysisId, status, queryClient]);
+
+  // Additional cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      isPollingRef.current = false;
+    };
+  }, []);
 
   return { status, setStatus, lastError };
 };
