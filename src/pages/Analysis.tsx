@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAnalysis, useCompetitors, useAnalysisContent, useDifferentiationAngles } from '@/hooks/useAnalysis';
