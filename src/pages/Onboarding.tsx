@@ -5,14 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Bot, Globe, Search, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCreateAnalysis, useAnalysisStatus } from '@/hooks/useAnalysis';
+import { toast } from 'sonner';
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [website, setWebsite] = useState('');
   const [email, setEmail] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisId, setAnalysisId] = useState<string>('');
+  
+  const navigate = useNavigate();
+  const createAnalysis = useCreateAnalysis();
+  const { status } = useAnalysisStatus(analysisId);
 
   const handleWebsiteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,19 +27,28 @@ const Onboarding = () => {
     }
   };
 
-  const handleUserInfoSubmit = (e: React.FormEvent) => {
+  const handleUserInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && companyName) {
-      setIsAnalyzing(true);
-      // Simulate analysis
-      setTimeout(() => {
+      try {
+        const id = await createAnalysis.mutateAsync({ website, companyName });
+        setAnalysisId(id);
         setStep(3);
-        setIsAnalyzing(false);
-      }, 3000);
+      } catch (error) {
+        console.error('Failed to start analysis:', error);
+        toast.error('Failed to start analysis. Please try again.');
+      }
     }
   };
 
-  const progressValue = (step / 3) * 100;
+  // Auto-advance to step 4 when analysis completes
+  React.useEffect(() => {
+    if (status === 'completed' && step === 3) {
+      setStep(4);
+    }
+  }, [status, step]);
+
+  const progressValue = (step / 4) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -46,7 +61,7 @@ const Onboarding = () => {
               <span className="text-2xl font-bold text-gray-900">CompeteAI</span>
             </Link>
             <div className="text-sm text-gray-600">
-              Step {step} of 3
+              Step {step} of 4
             </div>
           </div>
         </div>
@@ -91,7 +106,7 @@ const Onboarding = () => {
             </Card>
           )}
 
-          {step === 2 && !isAnalyzing && (
+          {step === 2 && (
             <Card>
               <CardHeader className="text-center">
                 <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -132,15 +147,27 @@ const Onboarding = () => {
                       className="text-lg py-3"
                     />
                   </div>
-                  <Button type="submit" size="lg" className="w-full">
-                    Start AI Analysis
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full"
+                    disabled={createAnalysis.isPending}
+                  >
+                    {createAnalysis.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Starting Analysis...
+                      </>
+                    ) : (
+                      'Start AI Analysis'
+                    )}
                   </Button>
                 </form>
               </CardContent>
             </Card>
           )}
 
-          {isAnalyzing && (
+          {step === 3 && (
             <Card>
               <CardHeader className="text-center">
                 <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -150,6 +177,12 @@ const Onboarding = () => {
                 <p className="text-gray-600">
                   This usually takes 2-3 minutes. We're analyzing your competitors and generating insights.
                 </p>
+                <div className="mt-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-gray-600">Status: {status}</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -179,7 +212,7 @@ const Onboarding = () => {
             </Card>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <Card>
               <CardHeader className="text-center">
                 <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -187,7 +220,7 @@ const Onboarding = () => {
                 </div>
                 <CardTitle className="text-2xl">Analysis Complete! 🎉</CardTitle>
                 <p className="text-gray-600">
-                  We've identified 5 key competitors and generated your first competitor analysis page.
+                  We've identified key competitors and generated your comprehensive competitor analysis.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -195,16 +228,29 @@ const Onboarding = () => {
                   <h3 className="font-semibold text-blue-900 mb-2">What We Found:</h3>
                   <ul className="text-blue-800 text-sm space-y-1">
                     <li>• 5 direct competitors in your market</li>
-                    <li>• 3 unique differentiation opportunities</li>
-                    <li>• 12 feature comparison points</li>
-                    <li>• 1 comprehensive competitor page ready</li>
+                    <li>• Multiple differentiation opportunities</li>
+                    <li>• Comprehensive feature comparison</li>
+                    <li>• Sales battle cards and insights</li>
                   </ul>
                 </div>
-                <Link to="/dashboard" className="block">
-                  <Button size="lg" className="w-full">
-                    View Your Competitor Analysis
+                
+                <div className="flex space-x-3">
+                  <Button 
+                    size="lg" 
+                    className="flex-1"
+                    onClick={() => navigate(`/analysis/${analysisId}`)}
+                  >
+                    View Your Analysis
                   </Button>
-                </Link>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Go to Dashboard
+                  </Button>
+                </div>
+                
                 <p className="text-center text-sm text-gray-600">
                   We've also sent a copy to {email}
                 </p>

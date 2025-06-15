@@ -9,7 +9,200 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      analyses: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          status: string | null
+          template: string | null
+          updated_at: string
+          user_id: string | null
+          website: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          status?: string | null
+          template?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string | null
+          template?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string
+        }
+        Relationships: []
+      }
+      analysis_content: {
+        Row: {
+          analysis_id: string | null
+          content: string
+          content_type: string
+          generated_at: string
+          id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          content: string
+          content_type: string
+          generated_at?: string
+          id?: string
+        }
+        Update: {
+          analysis_id?: string | null
+          content?: string
+          content_type?: string
+          generated_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_content_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitors: {
+        Row: {
+          analysis_id: string | null
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          last_analyzed: string | null
+          name: string
+          positioning: string | null
+          pricing_model: string | null
+          pricing_start: number | null
+          strengths: string[] | null
+          weaknesses: string[] | null
+          website: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          last_analyzed?: string | null
+          name: string
+          positioning?: string | null
+          pricing_model?: string | null
+          pricing_start?: number | null
+          strengths?: string[] | null
+          weaknesses?: string[] | null
+          website: string
+        }
+        Update: {
+          analysis_id?: string | null
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          last_analyzed?: string | null
+          name?: string
+          positioning?: string | null
+          pricing_model?: string | null
+          pricing_start?: number | null
+          strengths?: string[] | null
+          weaknesses?: string[] | null
+          website?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      differentiation_angles: {
+        Row: {
+          analysis_id: string | null
+          created_at: string
+          description: string
+          id: string
+          opportunity_level: string | null
+          title: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          opportunity_level?: string | null
+          title: string
+        }
+        Update: {
+          analysis_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          opportunity_level?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "differentiation_angles_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monitoring_alerts: {
+        Row: {
+          alert_type: string
+          competitor_id: string | null
+          detected_at: string
+          id: string
+          is_read: boolean | null
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          alert_type: string
+          competitor_id?: string | null
+          detected_at?: string
+          id?: string
+          is_read?: boolean | null
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          alert_type?: string
+          competitor_id?: string | null
+          detected_at?: string
+          id?: string
+          is_read?: boolean | null
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitoring_alerts_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
