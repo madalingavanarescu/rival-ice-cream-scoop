@@ -123,6 +123,33 @@ export interface WebsiteContext {
   created_at: string;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price_monthly: number;
+  price_annual: number;
+  stripe_price_id_monthly?: string;
+  stripe_price_id_annual?: string;
+  max_analyses: number;
+  features: string[];
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Subscriber {
+  id: string;
+  user_id: string;
+  email: string;
+  stripe_customer_id?: string;
+  subscribed: boolean;
+  subscription_tier?: string;
+  subscription_end?: string;
+  analyses_used: number;
+  max_analyses: number;
+  updated_at: string;
+  created_at: string;
+}
+
 // Helper functions to transform Supabase data to our types
 export const transformAnalysis = (data: any): Analysis => ({
   id: data.id,
@@ -187,5 +214,32 @@ export const transformWebsiteContext = (data: any): WebsiteContext => ({
   competitive_positioning: data.competitive_positioning,
   website_quality: data.website_quality,
   strategic_context: data.strategic_context,
+  created_at: data.created_at,
+});
+
+export const transformSubscriptionPlan = (data: any): SubscriptionPlan => ({
+  id: data.id,
+  name: data.name,
+  price_monthly: data.price_monthly,
+  price_annual: data.price_annual,
+  stripe_price_id_monthly: data.stripe_price_id_monthly,
+  stripe_price_id_annual: data.stripe_price_id_annual,
+  max_analyses: data.max_analyses,
+  features: data.features || [],
+  is_active: data.is_active,
+  created_at: data.created_at,
+});
+
+export const transformSubscriber = (data: any): Subscriber => ({
+  id: data.id,
+  user_id: data.user_id,
+  email: data.email,
+  stripe_customer_id: data.stripe_customer_id,
+  subscribed: data.subscribed,
+  subscription_tier: data.subscription_tier,
+  subscription_end: data.subscription_end,
+  analyses_used: data.analyses_used,
+  max_analyses: data.max_analyses,
+  updated_at: data.updated_at,
   created_at: data.created_at,
 });

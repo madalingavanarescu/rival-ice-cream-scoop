@@ -230,6 +230,87 @@ export type Database = {
         }
         Relationships: []
       }
+      subscribers: {
+        Row: {
+          analyses_used: number
+          created_at: string
+          email: string
+          id: string
+          max_analyses: number
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analyses_used?: number
+          created_at?: string
+          email: string
+          id?: string
+          max_analyses?: number
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analyses_used?: number
+          created_at?: string
+          email?: string
+          id?: string
+          max_analyses?: number
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          is_active: boolean
+          max_analyses: number | null
+          name: string
+          price_annual: number
+          price_monthly: number
+          stripe_price_id_annual: string | null
+          stripe_price_id_monthly: string | null
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          max_analyses?: number | null
+          name: string
+          price_annual: number
+          price_monthly: number
+          stripe_price_id_annual?: string | null
+          stripe_price_id_monthly?: string | null
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          max_analyses?: number | null
+          name?: string
+          price_annual?: number
+          price_monthly?: number
+          stripe_price_id_annual?: string | null
+          stripe_price_id_monthly?: string | null
+        }
+        Relationships: []
+      }
       website_context: {
         Row: {
           analysis_id: string | null
