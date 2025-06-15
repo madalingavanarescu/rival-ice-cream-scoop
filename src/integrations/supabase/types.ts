@@ -230,6 +230,62 @@ export type Database = {
         }
         Relationships: []
       }
+      website_context: {
+        Row: {
+          analysis_id: string | null
+          business_model: string
+          company_name: string
+          competitive_positioning: Json
+          core_offerings: Json
+          created_at: string
+          id: string
+          industry: string
+          pricing_strategy: Json
+          strategic_context: Json
+          target_audience: Json
+          value_proposition: string
+          website_quality: Json
+        }
+        Insert: {
+          analysis_id?: string | null
+          business_model: string
+          company_name: string
+          competitive_positioning: Json
+          core_offerings: Json
+          created_at?: string
+          id?: string
+          industry: string
+          pricing_strategy: Json
+          strategic_context: Json
+          target_audience: Json
+          value_proposition: string
+          website_quality: Json
+        }
+        Update: {
+          analysis_id?: string | null
+          business_model?: string
+          company_name?: string
+          competitive_positioning?: Json
+          core_offerings?: Json
+          created_at?: string
+          id?: string
+          industry?: string
+          pricing_strategy?: Json
+          strategic_context?: Json
+          target_audience?: Json
+          value_proposition?: string
+          website_quality?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_context_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

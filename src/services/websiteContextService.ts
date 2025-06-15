@@ -31,7 +31,8 @@ export class WebsiteContextService {
     console.log('Storing website context for analysis:', analysisId);
     
     try {
-      const { error } = await supabase
+      // Use type assertion to work around temporary type mismatch
+      const { error } = await (supabase as any)
         .from('website_context')
         .insert({
           analysis_id: analysisId,
@@ -60,17 +61,23 @@ export class WebsiteContextService {
   }
 
   static async getWebsiteContext(analysisId: string): Promise<WebsiteContext | null> {
-    const { data, error } = await supabase
-      .from('website_context')
-      .select('*')
-      .eq('analysis_id', analysisId)
-      .single();
+    try {
+      // Use type assertion to work around temporary type mismatch
+      const { data, error } = await (supabase as any)
+        .from('website_context')
+        .select('*')
+        .eq('analysis_id', analysisId)
+        .maybeSingle();
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching website context:', error);
+        return null;
+      }
+
+      return data ? transformWebsiteContext(data) : null;
+    } catch (error) {
       console.error('Error fetching website context:', error);
       return null;
     }
-
-    return data ? transformWebsiteContext(data) : null;
   }
 }
