@@ -1,4 +1,3 @@
-
 export interface Analysis {
   id: string;
   user_id: string;
@@ -10,6 +9,15 @@ export interface Analysis {
   updated_at: string;
 }
 
+export interface PricingDetails {
+  free_tier: boolean;
+  starting_price: number;
+  currency: string;
+  billing_cycle: 'monthly' | 'annual' | 'usage';
+  enterprise_pricing: 'custom' | 'contact' | 'disclosed';
+  pricing_notes: string;
+}
+
 export interface Competitor {
   id: string;
   analysis_id: string;
@@ -19,9 +27,14 @@ export interface Competitor {
   positioning?: string;
   pricing_model?: string;
   pricing_start?: number;
+  pricing_details?: PricingDetails;
   strengths?: string[];
   weaknesses?: string[];
   features?: Record<string, any>;
+  target_audience?: string;
+  value_proposition?: string;
+  competitive_advantages?: string[];
+  market_focus?: 'B2B' | 'B2C' | 'Enterprise' | 'SMB' | 'Startup';
   last_analyzed: string;
   created_at: string;
 }
@@ -74,9 +87,14 @@ export const transformCompetitor = (data: any): Competitor => ({
   positioning: data.positioning,
   pricing_model: data.pricing_model,
   pricing_start: data.pricing_start,
+  pricing_details: data.pricing_details as PricingDetails,
   strengths: data.strengths,
   weaknesses: data.weaknesses,
   features: data.features as Record<string, any>,
+  target_audience: data.target_audience,
+  value_proposition: data.value_proposition,
+  competitive_advantages: data.competitive_advantages,
+  market_focus: data.market_focus as Competitor['market_focus'],
   last_analyzed: data.last_analyzed || data.created_at,
   created_at: data.created_at,
 });

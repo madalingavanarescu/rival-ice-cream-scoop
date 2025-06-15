@@ -1,130 +1,11 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// FirecrawlService implementation directly in the edge function
-class FirecrawlService {
-  private static readonly BASE_URL = 'https://api.firecrawl.dev/v0';
-
-  static async scrapeUrl(url: string) {
-    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-    
-    if (!apiKey) {
-      throw new Error('FIRECRAWL_API_KEY is not configured');
-    }
-
-    try {
-      console.log('Scraping URL with Firecrawl:', url);
-      
-      const response = await fetch(`${this.BASE_URL}/scrape`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: url,
-          formats: ['markdown'],
-          onlyMainContent: true,
-          timeout: 30000
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Firecrawl API error:', response.status, errorText);
-        return {
-          success: false,
-          error: `Failed to scrape website: ${response.status} ${errorText}`
-        };
-      }
-
-      const data = await response.json();
-      console.log('Firecrawl scraping successful for:', url);
-      
-      return {
-        success: true,
-        data: data
-      };
-    } catch (error) {
-      console.error('Error scraping with Firecrawl:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
-
-  static extractCompanyInfo(scrapedData: any) {
-    const markdown = scrapedData?.markdown || '';
-    const metadata = scrapedData?.metadata || {};
-    
-    const name = metadata.ogTitle || metadata.title || 'Unknown Company';
-    const description = metadata.ogDescription || metadata.description || 
-      this.extractFirstParagraph(markdown);
-    
-    return {
-      name: this.cleanCompanyName(name),
-      description: description.substring(0, 500),
-      features: this.extractFeatures(markdown),
-      pricing: this.extractPricing(markdown)
-    };
-  }
-
-  private static extractFirstParagraph(markdown: string): string {
-    const lines = markdown.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.length > 50 && !trimmed.startsWith('#') && !trimmed.startsWith('*')) {
-        return trimmed;
-      }
-    }
-    return 'No description available';
-  }
-
-  private static extractFeatures(markdown: string): string[] {
-    const features: string[] = [];
-    const lines = markdown.split('\n');
-    
-    for (const line of lines) {
-      if ((line.startsWith('- ') || line.startsWith('* ')) && line.length > 10) {
-        features.push(line.replace(/^[-*]\s*/, '').trim());
-      }
-    }
-    
-    return features.slice(0, 10);
-  }
-
-  private static extractPricing(markdown: string): string[] {
-    const pricing: string[] = [];
-    const lines = markdown.split('\n');
-    
-    for (const line of lines) {
-      const lower = line.toLowerCase();
-      if (lower.includes('$') || lower.includes('price') || lower.includes('plan')) {
-        const cleaned = line.trim();
-        if (cleaned.length > 5) {
-          pricing.push(cleaned);
-        }
-      }
-    }
-    
-    return pricing.slice(0, 5);
-  }
-
-  private static cleanCompanyName(name: string): string {
-    return name
-      .replace(/\s*[-|]\s*.*/g, '')
-      .replace(/\s*(home|homepage|official|website).*$/gi, '')
-      .trim();
-  }
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -135,71 +16,66 @@ serve(async (req) => {
   try {
     const { website, analysisId } = await req.json();
     
-    if (!website || !analysisId) {
+    if (!website) {
       return new Response(
-        JSON.stringify({ error: 'Website and analysisId are required' }),
+        JSON.stringify({ error: 'Website URL is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Starting competitor scraping for:', website);
+    console.log('Scraping competitor website:', website);
 
-    // Scrape the competitor website
-    const scrapeResult = await FirecrawlService.scrapeUrl(website);
+    // Normalize URL
+    const url = website.startsWith('http') ? website : `https://${website}`;
     
-    if (!scrapeResult.success) {
-      console.error('Failed to scrape website:', scrapeResult.error);
+    try {
+      // Simple fetch to get the website content
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+        },
+        redirect: 'follow'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const html = await response.text();
+      
+      // Extract useful content using simple text parsing
+      const extractedContent = extractContentFromHTML(html);
+      
+      console.log('Successfully scraped content from:', website);
+      
       return new Response(
         JSON.stringify({ 
-          success: false, 
-          error: scrapeResult.error || 'Failed to scrape website' 
+          success: true, 
+          content: extractedContent,
+          url: url,
+          timestamp: new Date().toISOString()
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
+    } catch (fetchError) {
+      console.error('Error fetching website:', fetchError);
+      
+      // Return basic fallback information
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: `Failed to fetch website: ${fetchError.message}`,
+          content: `Unable to scrape content from ${website}. Using fallback analysis.`
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Extract company information from scraped data
-    const companyInfo = FirecrawlService.extractCompanyInfo(scrapeResult.data);
-    
-    console.log('Extracted company info:', companyInfo);
-
-    // Analyze the scraped content to extract competitor data
-    const competitorData = {
-      name: companyInfo.name,
-      description: companyInfo.description,
-      positioning: `${companyInfo.name} focuses on delivering value through their platform`,
-      pricing_model: 'Subscription', // Will be enhanced with AI analysis later
-      pricing_start: 29, // Will be extracted from pricing info later
-      strengths: [
-        'Established web presence',
-        'Clear value proposition',
-        'User-focused approach'
-      ],
-      weaknesses: [
-        'Complex pricing structure',
-        'Limited feature transparency'
-      ],
-      features: {
-        'Core Platform': true,
-        'User Dashboard': true,
-        'Integration Support': true,
-        'Analytics': companyInfo.features.some(f => f.toLowerCase().includes('analytic')),
-        'Mobile Support': companyInfo.features.some(f => f.toLowerCase().includes('mobile')),
-        'API Access': companyInfo.features.some(f => f.toLowerCase().includes('api')),
-        'Custom Reports': companyInfo.features.some(f => f.toLowerCase().includes('report')),
-        'Team Collaboration': companyInfo.features.some(f => f.toLowerCase().includes('team')),
-      }
-    };
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        competitorData,
-        scrapedFeatures: companyInfo.features,
-        scrapedPricing: companyInfo.pricing
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
 
   } catch (error) {
     console.error('Error in scrape-competitor function:', error);
@@ -212,3 +88,87 @@ serve(async (req) => {
     );
   }
 });
+
+function extractContentFromHTML(html: string): string {
+  // Remove script and style tags
+  const cleanHtml = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ') // Remove HTML tags
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+
+  // Extract specific sections that might contain useful information
+  const sections = {
+    pricing: extractPricingInfo(cleanHtml),
+    features: extractFeaturesInfo(cleanHtml),
+    about: extractAboutInfo(cleanHtml),
+    meta: extractMetaInfo(html)
+  };
+
+  // Combine extracted information
+  const extractedContent = [
+    sections.meta,
+    sections.about,
+    sections.pricing,
+    sections.features,
+    cleanHtml.substring(0, 2000) // First 2000 chars of clean content
+  ].filter(Boolean).join('\n\n');
+
+  return extractedContent.substring(0, 5000); // Limit to 5000 chars total
+}
+
+function extractPricingInfo(text: string): string {
+  const pricingKeywords = ['pricing', 'price', 'cost', 'plan', 'subscription', 'free', 'premium', 'enterprise'];
+  const sentences = text.split(/[.!?]+/);
+  
+  const pricingSentences = sentences.filter(sentence => 
+    pricingKeywords.some(keyword => 
+      sentence.toLowerCase().includes(keyword)
+    )
+  ).slice(0, 5); // Limit to 5 sentences
+
+  return pricingSentences.length > 0 ? 
+    `PRICING INFO: ${pricingSentences.join('. ')}` : '';
+}
+
+function extractFeaturesInfo(text: string): string {
+  const featureKeywords = ['feature', 'capability', 'functionality', 'tool', 'solution', 'service'];
+  const sentences = text.split(/[.!?]+/);
+  
+  const featureSentences = sentences.filter(sentence => 
+    featureKeywords.some(keyword => 
+      sentence.toLowerCase().includes(keyword)
+    )
+  ).slice(0, 5); // Limit to 5 sentences
+
+  return featureSentences.length > 0 ? 
+    `FEATURES INFO: ${featureSentences.join('. ')}` : '';
+}
+
+function extractAboutInfo(text: string): string {
+  const aboutKeywords = ['about', 'company', 'mission', 'vision', 'founded', 'team', 'story'];
+  const sentences = text.split(/[.!?]+/);
+  
+  const aboutSentences = sentences.filter(sentence => 
+    aboutKeywords.some(keyword => 
+      sentence.toLowerCase().includes(keyword)
+    )
+  ).slice(0, 3); // Limit to 3 sentences
+
+  return aboutSentences.length > 0 ? 
+    `ABOUT INFO: ${aboutSentences.join('. ')}` : '';
+}
+
+function extractMetaInfo(html: string): string {
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  const descMatch = html.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/i);
+  const keywordsMatch = html.match(/<meta[^>]*name="keywords"[^>]*content="([^"]+)"/i);
+  
+  const metaInfo = [];
+  if (titleMatch) metaInfo.push(`TITLE: ${titleMatch[1]}`);
+  if (descMatch) metaInfo.push(`DESCRIPTION: ${descMatch[1]}`);
+  if (keywordsMatch) metaInfo.push(`KEYWORDS: ${keywordsMatch[1]}`);
+  
+  return metaInfo.join('\n');
+}

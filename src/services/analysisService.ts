@@ -41,7 +41,7 @@ export class AnalysisService {
   }
 
   static async startAnalysis(analysisId: string): Promise<void> {
-    console.log('Starting analysis for ID:', analysisId);
+    console.log('Starting enhanced analysis for ID:', analysisId);
     
     try {
       // Update status to analyzing
@@ -63,15 +63,16 @@ export class AnalysisService {
       // Use the AI-powered competitor discovery
       const competitorData = await this.discoverCompetitorsWithAI(analysis.website, analysis.name);
       
-      console.log('Analyzing competitors with AI-powered analysis...');
-      // Analyze each competitor using AI
+      console.log('Analyzing competitors with enhanced AI-powered analysis...');
+      // Analyze each competitor using enhanced AI with scraping
       const competitorPromises = competitorData.competitors.map(async (comp: any) => {
-        console.log('AI analyzing competitor:', comp.name);
+        console.log('Enhanced AI analyzing competitor:', comp.name);
         
         try {
           // First try to scrape the website for content
           let scrapedContent = '';
           try {
+            console.log('Scraping competitor website:', comp.website);
             const scrapingResult = await supabase.functions.invoke('scrape-competitor', {
               body: { 
                 website: comp.website,
@@ -81,12 +82,14 @@ export class AnalysisService {
 
             if (!scrapingResult.error && scrapingResult.data?.content) {
               scrapedContent = scrapingResult.data.content;
+              console.log('Successfully scraped content for:', comp.name);
             }
           } catch (scrapingError) {
-            console.log('Scraping failed, proceeding with AI analysis only:', scrapingError);
+            console.log('Scraping failed for', comp.name, ', proceeding with AI analysis only:', scrapingError);
           }
 
-          // Use AI to analyze the competitor
+          // Use enhanced AI to analyze the competitor
+          console.log('Calling enhanced analyze-competitor function for:', comp.name);
           const analysisResult = await supabase.functions.invoke('analyze-competitor', {
             body: { 
               website: comp.website,
@@ -96,15 +99,15 @@ export class AnalysisService {
           });
 
           if (analysisResult.error) {
-            console.error('Error in AI competitor analysis:', analysisResult.error);
+            console.error('Error in enhanced AI competitor analysis:', analysisResult.error);
             // Fall back to enhanced basic analysis
             const competitorData = await CompetitorAnalysisService.analyzeCompetitor(comp.website);
-            return this.insertCompetitorData(analysisId, competitorData);
+            return this.insertEnhancedCompetitorData(analysisId, competitorData);
           }
 
           const { competitorData } = analysisResult.data;
           
-          // Insert the AI-analyzed competitor data
+          // Insert the enhanced AI-analyzed competitor data
           const { error } = await supabase
             .from('competitors')
             .insert({
@@ -115,17 +118,24 @@ export class AnalysisService {
               positioning: competitorData.positioning,
               pricing_model: competitorData.pricing_model,
               pricing_start: competitorData.pricing_start,
+              pricing_details: competitorData.pricing_details,
               strengths: competitorData.strengths,
               weaknesses: competitorData.weaknesses,
-              features: competitorData.features
+              features: competitorData.features,
+              target_audience: competitorData.target_audience,
+              value_proposition: competitorData.value_proposition,
+              competitive_advantages: competitorData.competitive_advantages,
+              market_focus: competitorData.market_focus
             });
           
           if (error) {
-            console.error('Error inserting competitor:', error);
+            console.error('Error inserting enhanced competitor:', error);
             throw error;
           }
+
+          console.log('Successfully analyzed and stored competitor:', competitorData.name);
         } catch (error) {
-          console.error('Error in competitor analysis:', error);
+          console.error('Error in enhanced competitor analysis:', error);
           // Don't fail the entire analysis if one competitor fails
           console.log('Continuing with next competitor...');
         }
@@ -137,7 +147,7 @@ export class AnalysisService {
       // Generate differentiation angles
       await DifferentiationService.generateAngles(analysisId, analysis.website);
 
-      console.log('Generating content...');
+      console.log('Generating enhanced content...');
       // Generate content for different formats
       await ContentGenerationService.generateAllContent(analysisId);
 
@@ -147,15 +157,42 @@ export class AnalysisService {
         .update({ status: 'completed', updated_at: new Date().toISOString() })
         .eq('id', analysisId);
 
-      console.log('Analysis completed successfully for ID:', analysisId);
+      console.log('Enhanced analysis completed successfully for ID:', analysisId);
     } catch (error) {
-      console.error('Error during analysis:', error);
+      console.error('Error during enhanced analysis:', error);
       
       await supabase
         .from('analyses')
         .update({ status: 'failed', updated_at: new Date().toISOString() })
         .eq('id', analysisId);
       
+      throw error;
+    }
+  }
+
+  private static async insertEnhancedCompetitorData(analysisId: string, competitorData: any) {
+    const { error } = await supabase
+      .from('competitors')
+      .insert({
+        analysis_id: analysisId,
+        name: competitorData.name,
+        website: competitorData.website || 'https://example.com',
+        description: competitorData.description,
+        positioning: competitorData.positioning,
+        pricing_model: competitorData.pricing_model,
+        pricing_start: competitorData.pricing_start,
+        pricing_details: competitorData.pricing_details,
+        strengths: competitorData.strengths,
+        weaknesses: competitorData.weaknesses,
+        features: competitorData.features,
+        target_audience: competitorData.target_audience,
+        value_proposition: competitorData.value_proposition,
+        competitive_advantages: competitorData.competitive_advantages,
+        market_focus: competitorData.market_focus
+      });
+    
+    if (error) {
+      console.error('Error inserting enhanced competitor:', error);
       throw error;
     }
   }
@@ -183,28 +220,6 @@ export class AnalysisService {
       console.error('Error calling discover-competitors function:', error);
       // Fallback to basic discovery
       return { competitors: CompetitorDiscoveryService.getBasicCompetitors(website) };
-    }
-  }
-
-  private static async insertCompetitorData(analysisId: string, competitorData: any) {
-    const { error } = await supabase
-      .from('competitors')
-      .insert({
-        analysis_id: analysisId,
-        name: competitorData.name,
-        website: competitorData.website || 'https://example.com',
-        description: competitorData.description,
-        positioning: competitorData.positioning,
-        pricing_model: competitorData.pricing_model,
-        pricing_start: competitorData.pricing_start,
-        strengths: competitorData.strengths,
-        weaknesses: competitorData.weaknesses,
-        features: competitorData.features
-      });
-    
-    if (error) {
-      console.error('Error inserting competitor:', error);
-      throw error;
     }
   }
 
