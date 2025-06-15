@@ -1,6 +1,14 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Analysis, Competitor, AnalysisContent, DifferentiationAngle } from '@/types/database';
+import { 
+  Analysis, 
+  Competitor, 
+  AnalysisContent, 
+  DifferentiationAngle,
+  transformAnalysis,
+  transformCompetitor,
+  transformAnalysisContent,
+  transformDifferentiationAngle
+} from '@/types/database';
 
 export class AnalysisService {
   static async createAnalysis(website: string, companyName: string): Promise<string> {
@@ -106,7 +114,7 @@ export class AnalysisService {
       return null;
     }
 
-    return data;
+    return transformAnalysis(data);
   }
 
   static async getUserAnalyses(): Promise<Analysis[]> {
@@ -120,7 +128,7 @@ export class AnalysisService {
       return [];
     }
 
-    return data || [];
+    return (data || []).map(transformAnalysis);
   }
 
   static async getCompetitors(analysisId: string): Promise<Competitor[]> {
@@ -135,7 +143,7 @@ export class AnalysisService {
       return [];
     }
 
-    return data || [];
+    return (data || []).map(transformCompetitor);
   }
 
   static async getAnalysisContent(analysisId: string, contentType?: string): Promise<AnalysisContent[]> {
@@ -155,7 +163,7 @@ export class AnalysisService {
       return [];
     }
 
-    return data || [];
+    return (data || []).map(transformAnalysisContent);
   }
 
   static async getDifferentiationAngles(analysisId: string): Promise<DifferentiationAngle[]> {
@@ -170,7 +178,7 @@ export class AnalysisService {
       return [];
     }
 
-    return data || [];
+    return (data || []).map(transformDifferentiationAngle);
   }
 }
 
@@ -403,6 +411,11 @@ export class ContentGenerationService {
 
     if (!analysis || !competitors) return;
 
+    // Transform the data
+    const transformedAnalysis = transformAnalysis(analysis);
+    const transformedCompetitors = competitors.map(transformCompetitor);
+    const transformedAngles = (angles || []).map(transformDifferentiationAngle);
+
     // Generate different content types
     const contentTypes = [
       { type: 'full_analysis', generator: this.generateFullAnalysis },
@@ -412,7 +425,7 @@ export class ContentGenerationService {
     ];
 
     const contentPromises = contentTypes.map(async (contentType) => {
-      const content = await contentType.generator(analysis, competitors, angles || []);
+      const content = await contentType.generator(transformedAnalysis, transformedCompetitors, transformedAngles);
       
       return supabase
         .from('analysis_content')

@@ -52,3 +52,48 @@ export interface DifferentiationAngle {
   opportunity_level: 'high' | 'medium' | 'low';
   created_at: string;
 }
+
+// Helper functions to transform Supabase data to our types
+export const transformAnalysis = (data: any): Analysis => ({
+  id: data.id,
+  user_id: data.user_id,
+  name: data.name,
+  website: data.website,
+  status: data.status as Analysis['status'],
+  template: (data.template || 'professional') as Analysis['template'],
+  created_at: data.created_at,
+  updated_at: data.updated_at,
+});
+
+export const transformCompetitor = (data: any): Competitor => ({
+  id: data.id,
+  analysis_id: data.analysis_id,
+  name: data.name,
+  website: data.website,
+  description: data.description,
+  positioning: data.positioning,
+  pricing_model: data.pricing_model,
+  pricing_start: data.pricing_start,
+  strengths: data.strengths,
+  weaknesses: data.weaknesses,
+  features: data.features as Record<string, any>,
+  last_analyzed: data.last_analyzed || data.created_at,
+  created_at: data.created_at,
+});
+
+export const transformAnalysisContent = (data: any): AnalysisContent => ({
+  id: data.id,
+  analysis_id: data.analysis_id,
+  content_type: data.content_type as AnalysisContent['content_type'],
+  content: data.content,
+  generated_at: data.generated_at,
+});
+
+export const transformDifferentiationAngle = (data: any): DifferentiationAngle => ({
+  id: data.id,
+  analysis_id: data.analysis_id,
+  title: data.title,
+  description: data.description,
+  opportunity_level: data.opportunity_level as DifferentiationAngle['opportunity_level'],
+  created_at: data.created_at,
+});
