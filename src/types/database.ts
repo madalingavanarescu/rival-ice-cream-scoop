@@ -66,6 +66,52 @@ export interface DifferentiationAngle {
   created_at: string;
 }
 
+export interface WebsiteContext {
+  id: string;
+  analysis_id: string;
+  company_name: string;
+  business_model: string;
+  industry: string;
+  target_audience: {
+    primary: string;
+    segments: string[];
+    company_size: string;
+  };
+  value_proposition: string;
+  core_offerings: {
+    primary_product: string;
+    secondary_products: string[];
+    key_features: string[];
+  };
+  pricing_strategy: {
+    model: string;
+    starting_price: number;
+    currency: string;
+    billing_cycle: string;
+    free_tier: boolean;
+    pricing_transparency: string;
+    price_range: string;
+  };
+  competitive_positioning: {
+    main_differentiators: string[];
+    positioning_statement: string;
+    competitive_advantages: string[];
+    market_focus: string;
+  };
+  website_quality: {
+    messaging_clarity: string;
+    feature_explanation: string;
+    pricing_transparency: string;
+    conversion_optimization: string;
+  };
+  strategic_context: {
+    likely_competitors: string[];
+    market_maturity: string;
+    innovation_level: string;
+  };
+  created_at: string;
+}
+
 // Helper functions to transform Supabase data to our types
 export const transformAnalysis = (data: any): Analysis => ({
   id: data.id,
@@ -113,5 +159,21 @@ export const transformDifferentiationAngle = (data: any): DifferentiationAngle =
   title: data.title,
   description: data.description,
   opportunity_level: data.opportunity_level as DifferentiationAngle['opportunity_level'],
+  created_at: data.created_at,
+});
+
+export const transformWebsiteContext = (data: any): WebsiteContext => ({
+  id: data.id,
+  analysis_id: data.analysis_id,
+  company_name: data.company_name,
+  business_model: data.business_model,
+  industry: data.industry,
+  target_audience: data.target_audience,
+  value_proposition: data.value_proposition,
+  core_offerings: data.core_offerings,
+  pricing_strategy: data.pricing_strategy,
+  competitive_positioning: data.competitive_positioning,
+  website_quality: data.website_quality,
+  strategic_context: data.strategic_context,
   created_at: data.created_at,
 });

@@ -9,6 +9,7 @@ import {
   transformAnalysisContent,
   transformDifferentiationAngle
 } from '@/types/database';
+import { WebsiteContextService } from './websiteContextService';
 
 export class AnalysisService {
   static async createAnalysis(website: string, companyName: string): Promise<string> {
