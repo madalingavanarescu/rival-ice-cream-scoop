@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +10,14 @@ import { useAnalyses } from '@/hooks/useAnalysis';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSession } from "@/hooks/useSession";
 import { useNavigate } from "react-router-dom";
+import SubscriptionStatus from '@/components/SubscriptionStatus';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import { useSubscriptionLimits } from '@/hooks/useSubscription';
 
 const Dashboard = () => {
   const session = useSession();
   const navigate = useNavigate();
+  const { canCreateAnalysis, analysesRemaining } = useSubscriptionLimits();
 
   if (!session.user && session.isLoaded) {
     // Not logged in, redirect
@@ -26,6 +31,10 @@ const Dashboard = () => {
   const totalCompetitors = completedAnalyses.length * 5; // Assuming 5 competitors per analysis
   const totalPages = completedAnalyses.length;
 
+  // Show upgrade prompt if user can't create analysis
+  const shouldShowUpgradePrompt = !canCreateAnalysis;
+  const shouldShowUsageWarning = analysesRemaining <= 2 && analysesRemaining > 0;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -37,12 +46,14 @@ const Dashboard = () => {
               <span className="text-2xl font-bold text-gray-900">CompeteAI</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Usage
-              </Button>
+              <Link to="/pricing">
+                <Button variant="outline" size="sm">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Pricing
+                </Button>
+              </Link>
               <Link to="/onboarding">
-                <Button size="sm">
+                <Button size="sm" disabled={!canCreateAnalysis}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Analysis
                 </Button>
@@ -61,6 +72,25 @@ const Dashboard = () => {
           <p className="text-gray-600">
             Your AI robots have been busy analyzing competitors. Here's what's new.
           </p>
+        </div>
+
+        {/* Subscription Status and Upgrade Prompts */}
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            {shouldShowUpgradePrompt && (
+              <div className="mb-6">
+                <UpgradePrompt trigger="limit-reached" />
+              </div>
+            )}
+            {shouldShowUsageWarning && !shouldShowUpgradePrompt && (
+              <div className="mb-6">
+                <UpgradePrompt trigger="usage-warning" />
+              </div>
+            )}
+          </div>
+          <div>
+            <SubscriptionStatus />
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -142,7 +172,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">Recent Analyses</h2>
               <Link to="/onboarding">
-                <Button>
+                <Button disabled={!canCreateAnalysis}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Analysis
                 </Button>
@@ -170,7 +200,7 @@ const Dashboard = () => {
                       Create your first competitor analysis to get started with CompeteAI.
                     </p>
                     <Link to="/onboarding">
-                      <Button size="lg">
+                      <Button size="lg" disabled={!canCreateAnalysis}>
                         <Plus className="h-5 w-5 mr-2" />
                         Create Your First Analysis
                       </Button>

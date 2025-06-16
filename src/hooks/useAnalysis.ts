@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnalysisService } from '@/services/analysisService';
 import { Analysis, Competitor, AnalysisContent, DifferentiationAngle } from '@/types/database';
 import { toast } from 'sonner';
+import { useUsageTracking } from '@/hooks/useUsageTracking';
 
 export const useAnalyses = () => {
   return useQuery({
@@ -45,13 +46,22 @@ export const useDifferentiationAngles = (analysisId: string) => {
 
 export const useCreateAnalysis = () => {
   const queryClient = useQueryClient();
+  const { incrementUsage, checkUsageLimit } = useUsageTracking();
   const [retryCount, setRetryCount] = useState(0);
   const maxRetries = 2;
 
   return useMutation({
     mutationFn: async ({ website, companyName }: { website: string; companyName: string }) => {
+      // Check usage limits before creating analysis
+      if (!checkUsageLimit()) {
+        throw new Error('Usage limit exceeded');
+      }
+
       console.log('Creating analysis for:', website, companyName);
       const analysisId = await AnalysisService.createAnalysis(website, companyName);
+      
+      // Track usage immediately after successful creation
+      incrementUsage.mutate();
       
       // Enhanced background analysis with retry logic
       setTimeout(async () => {
@@ -104,6 +114,7 @@ export const useCreateAnalysis = () => {
     },
     onSuccess: (analysisId) => {
       queryClient.invalidateQueries({ queryKey: ['analyses'] });
+      queryClient.invalidateQueries({ queryKey: ['userSubscription'] });
       toast.success('Analysis started with enhanced AI validation!', {
         description: 'This may take a few minutes. We\'ll retry automatically if needed.'
       });
@@ -112,9 +123,15 @@ export const useCreateAnalysis = () => {
     },
     onError: (error) => {
       console.error('Error creating analysis:', error);
-      toast.error('Failed to start analysis. Please try again.', {
-        description: 'Check your internet connection and website URL.'
-      });
+      if (error.message === 'Usage limit exceeded') {
+        toast.error('Analysis limit reached', {
+          description: 'Please upgrade your plan to continue analyzing competitors.'
+        });
+      } else {
+        toast.error('Failed to start analysis. Please try again.', {
+          description: 'Check your internet connection and website URL.'
+        });
+      }
     },
   });
 };
