@@ -32,9 +32,36 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Create environment variables file
+cp .env.example .env
+# Add your Kit API key to .env file:
+# VITE_KIT_API_KEY=your_kit_api_key_here
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Kit API Configuration (required for waitlist signup)
+VITE_KIT_API_KEY=your_kit_api_key_here
+
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Kit API Setup
+
+1. Sign up for a [Kit account](https://kit.com)
+2. Go to Account Settings > API Keys
+3. Create a new API key with subscriber permissions
+4. Add the API key to your `.env` file
+5. Create a list in Kit for your waitlist subscribers
+6. Set up double opt-in and automated email sequences in Kit
 
 **Edit a file directly in GitHub**
 

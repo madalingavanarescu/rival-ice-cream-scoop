@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Bot, Search, FileText, Download, Star, Users, Zap, Shield, Globe, CheckCircle, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import WaitlistSignup from '@/components/WaitlistSignup';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,11 +34,11 @@ const Index = () => {
             <nav className="hidden md:flex space-x-6 lg:space-x-8">
               <a href="#features" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Features</a>
               <a href="#how-it-works" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">How it Works</a>
-              <Link to="/pricing" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Pricing</Link>
+              {/* <Link to="/pricing" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Pricing</Link> */}
             </nav>
             
             {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-3">
+            {/* <div className="hidden md:flex items-center space-x-3">
               <Button variant="ghost" onClick={handleSignIn} className="text-neutral-700 hover:text-neutral-900">
                 Sign In
               </Button>
@@ -46,7 +47,7 @@ const Index = () => {
                   Start Free Trial
                 </Button>
               </Link>
-            </div>
+            </div> */}
 
             {/* Mobile Menu Button */}
             <button
@@ -75,14 +76,14 @@ const Index = () => {
                 >
                   How it Works
                 </a>
-                <Link 
+                {/* <Link 
                   to="/pricing" 
                   className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Pricing
-                </Link>
-                <div className="flex flex-col space-y-3 pt-2">
+                </Link> */}
+                {/* <div className="flex flex-col space-y-3 pt-2">
                   <Button variant="ghost" onClick={handleSignIn} className="justify-start text-neutral-700 hover:text-neutral-900">
                     Sign In
                   </Button>
@@ -91,7 +92,7 @@ const Index = () => {
                       Start Free Trial
                     </Button>
                   </Link>
-                </div>
+                </div> */}
               </nav>
             </div>
           )}
@@ -141,38 +142,22 @@ const Index = () => {
               Are Doing
             </h1>
             
-            <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-6 sm:mb-8 px-2 sm:px-0">
+            <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-8 sm:mb-12 px-2 sm:px-0">
               Our AI robots analyze your SaaS competitors 24/7, then generate beautiful competitor pages 
               and cheat sheets that help you stay ahead. No more manual research or outdated spreadsheets.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 px-4 sm:px-0">
-              <Link to="/onboarding" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-neutral-900 hover:bg-neutral-800 px-6 sm:px-8 py-3 text-sm sm:text-base">
-                  Analyze My Competitors
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto px-6 sm:px-8 py-3 text-sm sm:text-base" onClick={handleSample}>
-                View Sample Report
-              </Button>
+            {/* Waitlist Signup */}
+            <div className="mb-8 sm:mb-12 px-4 sm:px-0">
+              <WaitlistSignup />
             </div>
 
-            {/* Trust indicators */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs text-neutral-500 mb-6 sm:mb-8">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                <span>14-day free trial</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                <span>Cancel anytime</span>
-              </div>
-            </div>
+            {/* Secondary CTA */}
+            {/* <div className="mb-8 sm:mb-12">
+              <Button variant="outline" size="lg" className="px-6 sm:px-8 py-3 text-sm sm:text-base" onClick={handleSample}>
+                View Sample Report
+              </Button>
+            </div> */}
           </div>
         </div>
       </section>
@@ -377,7 +362,12 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="relative mx-auto flex flex-col sm:flex-row max-w-fit gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {/* Waitlist Signup in CTA Section */}
+          <div className="relative mx-auto max-w-md mb-6 sm:mb-8">
+            <WaitlistSignup />
+          </div>
+
+          {/* <div className="relative mx-auto flex flex-col sm:flex-row max-w-fit gap-3 sm:gap-4 mb-6 sm:mb-8">
             <Link to="/onboarding" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto bg-neutral-900 hover:bg-neutral-800 px-6 sm:px-8">
                 Start for Free
@@ -386,7 +376,7 @@ const Index = () => {
             <Button variant="outline" size="lg" className="w-full sm:w-auto px-6 sm:px-8" onClick={handleSample}>
               View Demo
             </Button>
-          </div>
+          </div> */}
 
           {/* Trusted by companies */}
           <div className="relative">
@@ -415,7 +405,7 @@ const Index = () => {
               <h4 className="font-medium text-neutral-900 mb-3 sm:mb-4 text-sm sm:text-base">Product</h4>
               <ul className="space-y-2 text-xs sm:text-sm text-neutral-600">
                 <li><a href="#features" className="hover:text-neutral-900 transition-colors">Features</a></li>
-                <li><Link to="/pricing" className="hover:text-neutral-900 transition-colors">Pricing</Link></li>
+                {/* <li><Link to="/pricing" className="hover:text-neutral-900 transition-colors">Pricing</Link></li> */}
                 <li><a href="#" className="hover:text-neutral-900 transition-colors">API</a></li>
               </ul>
             </div>
