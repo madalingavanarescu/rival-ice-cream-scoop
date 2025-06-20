@@ -46,10 +46,10 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Stop Guessing What Your 
-            <span className="text-blue-600"> Competitors</span> Are Doing
+            <span className="text-blue-600"> SaaS Competitors</span> Are Doing
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Our AI robots analyze your competitors 24/7, then generate beautiful competitor pages 
+            Our AI robots analyze your SaaS competitors 24/7, then generate beautiful competitor pages 
             and cheat sheets that help you stay ahead. No more manual research or outdated spreadsheets.
           </p>
           
@@ -71,7 +71,7 @@ const Index = () => {
                 <Search className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold mb-2">Research Robot</h3>
-              <p className="text-gray-600">Discovers competitors and analyzes their websites, features, and positioning</p>
+              <p className="text-gray-600">Discovers SaaS competitors and analyzes their websites, features, and positioning</p>
             </div>
             
             <div className="bg-white rounded-lg p-6 shadow-lg">
@@ -79,7 +79,7 @@ const Index = () => {
                 <FileText className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold mb-2">Writing Robot</h3>
-              <p className="text-gray-600">Generates compelling competitor analysis content with unexpected angles</p>
+              <p className="text-gray-600">Generates compelling competitor analysis content that ranks well with unexpected angles</p>
             </div>
             
             <div className="bg-white rounded-lg p-6 shadow-lg">
@@ -98,7 +98,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Everything You Need to Outmaneuver Competitors
+              Everything You Need to Outmaneuver SaaS Competitors
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               From automatic competitor discovery to beautiful reports, our AI handles the heavy lifting 
