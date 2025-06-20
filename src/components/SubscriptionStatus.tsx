@@ -1,12 +1,12 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Crown, Calendar, TrendingUp, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useUserSubscription, useCustomerPortal, useCheckSubscription } from '@/hooks/useSubscription';
 import { useSubscriptionLimits } from '@/hooks/useSubscription';
+import { cn } from '@/lib/utils';
 
 const SubscriptionStatus = () => {
   const { data: subscription, isLoading } = useUserSubscription();
@@ -24,11 +24,11 @@ const SubscriptionStatus = () => {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="border-neutral-200">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-neutral-200 rounded w-1/3"></div>
+            <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
           </div>
         </CardContent>
       </Card>
@@ -46,84 +46,106 @@ const SubscriptionStatus = () => {
   const isNearLimit = usagePercentage > 80;
 
   return (
-    <Card className={subscription?.subscribed ? 'border-green-200' : ''}>
-      <CardHeader className="pb-3">
+    <Card className={cn(
+      "border-neutral-200",
+      subscription?.subscribed && "bg-green-50 border-green-200"
+    )}>
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-blue-600" />
-            Subscription Status
+          <CardTitle className="flex items-center gap-2 text-base font-medium">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100">
+              <Crown className="h-4 w-4 text-neutral-700" />
+            </div>
+            <span className="text-neutral-900">Subscription Status</span>
           </CardTitle>
           <Badge 
-            variant={subscription?.subscribed ? 'default' : 'secondary'}
-            className={subscription?.subscribed ? 'bg-green-100 text-green-800' : ''}
+            variant="secondary"
+            className={cn(
+              "text-xs font-medium",
+              subscription?.subscribed 
+                ? "bg-green-100 text-green-800 border-green-200" 
+                : "bg-neutral-100 text-neutral-700 border-neutral-200"
+            )}
           >
             {subscriptionTier}
           </Badge>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {/* Usage Progress */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Analysis Usage</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-medium text-neutral-900">Analysis Usage</span>
+            <span className="text-sm text-neutral-600">
               {subscription?.analyses_used || 0}
               {isUnlimited ? ' used' : ` / ${subscription?.max_analyses || 5}`}
             </span>
           </div>
           
           {!isUnlimited && (
-            <Progress 
-              value={usagePercentage} 
-              className={`h-2 ${isNearLimit ? 'bg-red-100' : 'bg-blue-100'}`}
-            />
-          )}
-          
-          {isNearLimit && !isUnlimited && (
-            <div className="flex items-center gap-1 text-orange-600 text-sm">
-              <AlertTriangle className="h-4 w-4" />
-              <span>Approaching usage limit</span>
+            <div className="space-y-2">
+              <Progress 
+                value={usagePercentage} 
+                className={cn(
+                  "h-2",
+                  isNearLimit ? "bg-red-100" : "bg-neutral-100"
+                )}
+              />
+              
+              {isNearLimit && (
+                <div className="flex items-center gap-2 p-2 rounded-md bg-orange-50 border border-orange-200">
+                  <AlertTriangle className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                  <span className="text-xs text-orange-800">
+                    Approaching usage limit
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Subscription Details */}
         {subscription?.subscribed && subscriptionEndDate && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="h-4 w-4" />
-            <span>Renews on {subscriptionEndDate}</span>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-white border border-neutral-200">
+            <Calendar className="h-4 w-4 text-neutral-600" />
+            <span className="text-sm text-neutral-700">
+              Renews on {subscriptionEndDate}
+            </span>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={handleRefreshStatus}
             disabled={checkSubscription.isPending}
+            className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100"
           >
-            <TrendingUp className="h-4 w-4 mr-1" />
-            {checkSubscription.isPending ? 'Refreshing...' : 'Refresh'}
+            <TrendingUp className="h-4 w-4 mr-2" />
+            {checkSubscription.isPending ? 'Refreshing...' : 'Refresh Status'}
           </Button>
           
-          {subscription?.subscribed && (
+          {subscription?.subscribed ? (
             <Button
               variant="outline"
               size="sm"
               onClick={handleManageSubscription}
               disabled={customerPortal.isPending}
+              className="border-neutral-300 text-neutral-700 hover:bg-neutral-50"
             >
+              <ExternalLink className="h-4 w-4 mr-2" />
               Manage Subscription
             </Button>
-          )}
-          
-          {!subscription?.subscribed && (
+          ) : (
             <Button
               size="sm"
               onClick={() => window.open('/pricing', '_blank')}
+              className="bg-neutral-900 hover:bg-neutral-800"
             >
+              <Crown className="h-4 w-4 mr-2" />
               Upgrade Plan
             </Button>
           )}

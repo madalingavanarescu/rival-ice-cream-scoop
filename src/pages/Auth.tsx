@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardTitle, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bot, ArrowLeft } from "lucide-react";
 
 // Switch between login and signup forms
 const Auth = () => {
@@ -63,92 +62,169 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100 px-2">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold mb-2">
-            {mode === "signup" ? "Sign Up" : "Sign In"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-            {mode === "signup" && (
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium mb-1">Full Name</label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Your full name"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  required
-                  autoComplete="name"
-                />
-              </div>
-            )}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              />
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full"
-              disabled={loading}
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b border-neutral-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 sm:h-16 items-center justify-between">
+            <Link to="/" className="flex items-center space-x-2">
+              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
+              <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+            </Link>
+            <Link 
+              to="/" 
+              className="flex items-center text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {mode === "signup" ? "Signing Up..." : "Signing In..."}
-                </>
-              ) : mode === "signup" ? "Sign Up" : "Sign In"}
-            </Button>
-            {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
-            )}
-          </form>
-          <div className="mt-4 text-center">
-            {mode === "signup" ? (
-              <span>
-                Already have an account?{" "}
-                <button className="text-blue-600 underline" type="button" onClick={() => setMode("login")}>
-                  Sign In
-                </button>
-              </span>
-            ) : (
-              <span>
-                New here?{" "}
-                <button className="text-blue-600 underline" type="button" onClick={() => setMode("signup")}>
-                  Create an Account
-                </button>
-              </span>
-            )}
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to Home
+            </Link>
           </div>
-          <div className="mt-2 text-center">
-            <Link to="/" className="text-gray-500 text-sm hover:underline">← Back to Home</Link>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="text-center mb-8">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 mb-4">
+              <Bot className="h-6 w-6 text-neutral-900" />
+            </div>
+            <h2 className="font-display text-3xl font-medium text-neutral-900">
+              {mode === "signup" ? "Create your account" : "Welcome back"}
+            </h2>
+            <p className="mt-2 text-sm text-neutral-600">
+              {mode === "signup" 
+                ? "Start analyzing your competitors with AI" 
+                : "Sign in to your CompeteAI account"
+              }
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="mx-auto w-full max-w-md px-4">
+          <Card className="border-neutral-200 shadow-sm">
+            <CardContent className="p-6 sm:p-8">
+              <form onSubmit={handleAuth} className="space-y-6">
+                {mode === "signup" && (
+                  <div>
+                    <label 
+                      htmlFor="fullName" 
+                      className="block text-sm font-medium text-neutral-900 mb-2"
+                    >
+                      Full Name
+                    </label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Your full name"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      required
+                      autoComplete="name"
+                      className="border-neutral-300 focus:border-neutral-500 focus:ring-neutral-500"
+                    />
+                  </div>
+                )}
+                
+                <div>
+                  <label 
+                    htmlFor="email" 
+                    className="block text-sm font-medium text-neutral-900 mb-2"
+                  >
+                    Email address
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    className="border-neutral-300 focus:border-neutral-500 focus:ring-neutral-500"
+                  />
+                </div>
+                
+                <div>
+                  <label 
+                    htmlFor="password" 
+                    className="block text-sm font-medium text-neutral-900 mb-2"
+                  >
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                    className="border-neutral-300 focus:border-neutral-500 focus:ring-neutral-500"
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-md bg-red-50 border border-red-200 p-3">
+                    <div className="text-sm text-red-800">{error}</div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full bg-neutral-900 hover:bg-neutral-800 focus:ring-neutral-500"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {mode === "signup" ? "Creating account..." : "Signing in..."}
+                    </>
+                  ) : mode === "signup" ? "Create account" : "Sign in"}
+                </Button>
+              </form>
+
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-neutral-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-white px-2 text-neutral-500">
+                      {mode === "signup" ? "Already have an account?" : "New to CompeteAI?"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                    className="text-sm font-medium text-neutral-900 hover:text-neutral-700 transition-colors"
+                  >
+                    {mode === "signup" ? "Sign in to your account" : "Create a new account"}
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Trust indicators */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-neutral-500">
+              By signing up, you agree to our{' '}
+              <a href="#" className="text-neutral-700 hover:text-neutral-900 underline">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-neutral-700 hover:text-neutral-900 underline">
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
