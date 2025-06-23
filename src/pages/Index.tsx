@@ -143,8 +143,8 @@ const Index = () => {
             </h1>
             
             <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-8 sm:mb-12 px-2 sm:px-0">
-              Our AI robots analyze your SaaS competitors 24/7, then generate beautiful competitor pages 
-              and cheat sheets that help you stay ahead. No more manual research or outdated spreadsheets.
+             Generate SEO-optimised <b>ready-to-rank competitor pages </b> 
+             and <b>sales-ready cheat sheets</b> that help you stay ahead. Our AI robots analyze your competitors 24/7, so you’re always up to date. No more manual research or outdated spreadsheets.
             </p>
 
             {/* Waitlist Signup */}

@@ -95,15 +95,15 @@ export default function WaitlistSignup() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs text-neutral-500">
         <div className="flex items-center gap-1">
           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-          <span>No credit card required</span>
+          <span>SEO Optimized</span>
         </div>
         <div className="flex items-center gap-1">
           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-          <span>14-day free trial</span>
+          <span>Sales-Ready Assets</span>
         </div>
         <div className="flex items-center gap-1">
           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-          <span>Cancel anytime</span>
+          <span>Always Up-To-Date</span>
         </div>
       </div>
     </div>
