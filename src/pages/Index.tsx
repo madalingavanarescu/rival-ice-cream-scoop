@@ -135,11 +135,11 @@ const Index = () => {
             </div>
             
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-neutral-900 leading-tight sm:leading-[1.15] mb-4 sm:mb-6">
-              Stop Guessing What Your{' '}
+              Generate in minutes{' '}
               <span className="bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text text-transparent">
-                SaaS Competitors
+                Competitor Comparison Pages
               </span>{' '}
-              Are Doing
+              that rank and convert for your SaaS
             </h1>
             
             <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-8 sm:mb-12 px-2 sm:px-0">
@@ -170,19 +170,19 @@ const Index = () => {
               {
                 icon: Search,
                 title: "Research Robot",
-                description: "Discovers SaaS competitors and analyzes their websites, features, and positioning",
+                description: "Scans websites, review platforms, pricing pages, and videos to find relevant competitor data and positioning. No spreadsheets required.",
                 color: "blue"
               },
               {
                 icon: FileText,
                 title: "Writing Robot", 
-                description: "Generates compelling competitor analysis content that ranks well with unexpected angles",
+                description: "Crafts high-quality comparison content using fresh insights and unique angles that help your brand stand out in search.",
                 color: "green"
               },
               {
                 icon: Download,
                 title: "Design Robot",
-                description: "Creates beautiful competitor pages and PDF cheat sheets for your team", 
+                description: "Turns your content into clean, well-branded competitor cheat sheets and beautiful PDF battlecards. Ready sharing with the clients.", 
                 color: "purple"
               }
             ].map((item, idx) => (
@@ -227,11 +227,10 @@ const Index = () => {
             Powerful Features
           </div>
           <h2 className="font-display text-balance text-2xl sm:text-3xl font-medium text-neutral-900 mb-3 sm:mb-4">
-            Everything You Need to Outmaneuver SaaS Competitors
+            Everything You Need to Stand Out from Your SaaS Competitors
           </h2>
           <p className="text-pretty text-base sm:text-lg text-neutral-600">
-            From automatic competitor discovery to beautiful reports, our AI handles the heavy lifting 
-            so you can focus on winning deals.
+          From smart research to standout design, CompeteAI gives your marketing and sales team the edge they need to win.
           </p>
         </div>
 
@@ -239,24 +238,24 @@ const Index = () => {
           <div className="contents divide-neutral-200 max-sm:divide-y sm:divide-x">
             {[
               {
-                title: "Smart Competitor Detection",
-                description: "Just enter your website. Our AI identifies your real competitors, not just the obvious ones.",
-                icon: Search
-              },
-              {
-                title: "Unexpected Differentiation Angles", 
-                description: "Discover unique positioning opportunities your competitors haven't thought of yet.",
-                icon: Zap
-              },
-              {
-                title: "Beautiful Competitor Pages",
-                description: "Generate professional competitor analysis pages in multiple styles and formats.",
+                title: "Ready-to-Rank Comparison Pages",
+                description: "SEO-focused content for high-intent keywords like “vs” and “alternatives” with FAQs and semantic structure included.",
                 icon: Globe
               },
               {
                 title: "Sales Team Cheat Sheets",
-                description: "Export PDF battle cards that help your sales team handle competitive objections.", 
+                description: "Export beautiful PDF battlecards that help reps handle objections in real time with accurate, up-to-date facts.", 
                 icon: Shield
+              },
+              {
+                title: "Built for Collaboration",
+                description: "Bring your insights into the loop. Add context, adjust voice, and refine focus. CompeteAI works with you, not instead of you.",
+                icon: Search
+              },
+              {
+                title: "Unexpected Differentiation Angles", 
+                description: "Discover unique positioning opportunities your competitors haven't thought of yet extracted from real customer reviews.",
+                icon: Zap
               }
             ].map((feature, idx) => (
               <div key={idx} className="relative flex flex-col gap-6 sm:gap-10 px-4 py-8 sm:py-14 sm:px-12">
@@ -293,9 +292,9 @@ const Index = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[
-              "Enter your website URL and let our Research Robot discover your competitors",
-              "Writing Robot analyzes features, pricing, and positioning to find your unique angles", 
-              "Design Robot creates beautiful competitor pages and PDF cheat sheets for your team"
+              "Enter your competitor’s website and let our Research Robot dig into their product features, pricing, and positioning",
+              "The Writing Robot turns that data into compelling, SEO-optimized content with rich comparison tables and FAQs.", 
+              "The Design Robot wraps it all into on-brand comparison pages and polished PDF battlecards and cheat sheets for your team"
             ].map((step, idx) => (
               <div key={idx} className="bg-white rounded-lg p-4 sm:p-6 text-left">
                 <div className="bg-neutral-900 text-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center font-medium text-xs sm:text-sm mb-3 sm:mb-4">
@@ -334,7 +333,7 @@ const Index = () => {
             {[
               { name: "G2", stars: 5 },
               { name: "Product Hunt", stars: 5 },
-              { name: "Trustpilot", stars: 4.5 }
+              { name: "Trustpilot", stars: 5 }
             ].map(({ name, stars }, idx) => (
               <div key={idx} className="flex flex-col items-center">
                 <div className="w-5 h-5 sm:w-6 sm:h-6 bg-neutral-800 rounded flex items-center justify-center mb-2">
@@ -358,7 +357,7 @@ const Index = () => {
               Ready to Stop Playing Catch-Up?
             </h2>
             <p className="text-balance text-sm sm:text-base lg:text-xl text-neutral-600 mb-6 sm:mb-10">
-              Join hundreds of companies using AI to stay ahead of their competition.
+             Join marketers, founders, and sales teams already turning competitor research into SEO growth and closed deals.
             </p>
           </div>
 
@@ -378,7 +377,7 @@ const Index = () => {
             </Button>
           </div> */}
 
-          {/* Trusted by companies */}
+          {/* Trusted by companies 
           <div className="relative">
             <p className="text-xs sm:text-sm text-neutral-500 mb-3 sm:mb-4">Trusted by marketing teams at</p>
             <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 opacity-60">
@@ -386,7 +385,7 @@ const Index = () => {
                 <div key={idx} className="text-xs sm:text-sm font-medium text-neutral-400">{company}</div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
