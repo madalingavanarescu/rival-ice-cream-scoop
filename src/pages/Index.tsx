@@ -105,7 +105,7 @@ const Index = () => {
                   onClick={() => document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                   className="bg-neutral-900 hover:bg-neutral-800 text-white text-sm px-4 py-2"
                 >
-                  Join the Waitlist
+                  Join Waitlist
                 </Button>
               </div>
             </div>
