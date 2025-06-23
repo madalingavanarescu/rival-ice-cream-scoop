@@ -1,33 +1,118 @@
-import { CheckCircle, Mail, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Mail, ArrowLeft, Bot, Menu, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export default function ThankYou() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.innerHTML = `
+      var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}
+    `;
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup: remove the script when component unmounts
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
       {/* Header */}
-      <header className="relative z-10 border-b border-neutral-200/50 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-neutral-900 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
+      <header className="sticky top-0 z-30 w-full">
+        {/* Mobile Header - Full Width */}
+        <div className="md:hidden border-b border-neutral-200 bg-white/90 backdrop-blur-lg">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="flex h-14 sm:h-16 items-center justify-between">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
+                <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
               </div>
-              <span className="font-semibold text-neutral-900">CompeteAI</span>
-            </Link>
-            
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="text-neutral-600 hover:text-neutral-900">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+              
+              {/* Mobile Menu Button */}
+              <button
+                className="p-2 text-neutral-600 hover:text-neutral-900"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+              <div className="border-t border-neutral-200 py-4">
+                <nav className="flex flex-col space-y-4">
+                  <Link 
+                    to="/#features" 
+                    className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </Link>
+                  <Link 
+                    to="/#how-it-works" 
+                    className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    How it Works
+                  </Link>
+                  <div className="pt-3">
+                    <Link to="/">
+                      <Button 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="w-full bg-neutral-900 hover:bg-neutral-800 text-white"
+                      >
+                        Join Waitlist
+                      </Button>
+                    </Link>
+                  </div>
+                </nav>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Header - Floating Island */}
+        <div className="hidden md:flex justify-center pt-4 px-4">
+          <div className="bg-white/90 backdrop-blur-lg border border-neutral-200/50 rounded-2xl shadow-lg shadow-neutral-900/5 px-6 py-3 max-w-fit">
+            <div className="flex items-center justify-between gap-8">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <Bot className="h-6 w-6 text-neutral-900" />
+                <span className="text-lg font-semibold text-neutral-900">CompeteAI</span>
+              </div>
+              
+              {/* Desktop Navigation */}
+              <nav className="flex space-x-6 lg:space-x-8">
+                <Link to="/#features" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Features</Link>
+                <Link to="/#how-it-works" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">How it Works</Link>
+              </nav>
+              
+              {/* Desktop Actions */}
+              <div className="flex items-center">
+                <Link to="/">
+                  <Button 
+                    className="bg-neutral-900 hover:bg-neutral-800 text-white text-sm px-4 py-2"
+                  >
+                    Join the Waitlist
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+      {/* Main Content - Commented Out */}
+      {/* <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-2xl mx-auto text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <CheckCircle className="h-8 w-8 text-green-600" />
@@ -56,7 +141,6 @@ export default function ThankYou() {
             </div>
           </div>
 
-          {/* Additional Actions */}
           <div className="mt-12 space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/">
@@ -64,11 +148,6 @@ export default function ThankYou() {
                   Back to Home
                 </Button>
               </Link>
-              {/* <Link to="/pricing">
-                <Button className="w-full sm:w-auto bg-neutral-900 hover:bg-neutral-800">
-                  View Pricing
-                </Button>
-              </Link> */}
             </div>
             
             <p className="text-sm text-neutral-500 mt-6">
@@ -78,6 +157,23 @@ export default function ThankYou() {
               </Link>
             </p>
           </div>
+        </div>
+      </main> */}
+
+      {/* Survey Section - Centered */}
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-4xl mx-auto w-full">
+          <iframe 
+            data-tally-src="https://tally.so/embed/nGaOEQ?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" 
+            loading="lazy" 
+            width="100%" 
+            height={2341} 
+            frameBorder={0} 
+            marginHeight={0} 
+            marginWidth={0} 
+            title="CompeteAI Waiting List"
+            className="w-full"
+          ></iframe>
         </div>
       </main>
 
