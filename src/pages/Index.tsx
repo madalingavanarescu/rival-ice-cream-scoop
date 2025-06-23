@@ -4,6 +4,7 @@ import { ArrowRight, Bot, Search, FileText, Download, Star, Users, Zap, Shield, 
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import WaitlistSignup from '@/components/WaitlistSignup';
+import { BounceCards } from '@/components/ui/bounce-cards';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -22,86 +23,99 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-lg">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 sm:h-16 items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-              <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+      <header className="sticky top-0 z-30 w-full">
+        {/* Mobile Header - Full Width */}
+        <div className="md:hidden border-b border-neutral-200 bg-white/90 backdrop-blur-lg">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="flex h-14 sm:h-16 items-center justify-between">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
+                <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+              </div>
+              
+              {/* Mobile Menu Button */}
+              <button
+                className="p-2 text-neutral-600 hover:text-neutral-900"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6 lg:space-x-8">
-              <a href="#features" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">How it Works</a>
-              {/* <Link to="/pricing" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Pricing</Link> */}
-            </nav>
-            
-            {/* Desktop Actions */}
-            {/* <div className="hidden md:flex items-center space-x-3">
-              <Button variant="ghost" onClick={handleSignIn} className="text-neutral-700 hover:text-neutral-900">
-                Sign In
-              </Button>
-              <Link to="/onboarding">
-                <Button className="bg-neutral-900 hover:bg-neutral-800">
-                  Start Free Trial
-                </Button>
-              </Link>
-            </div> */}
 
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 text-neutral-600 hover:text-neutral-900"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-neutral-200 py-4">
-              <nav className="flex flex-col space-y-4">
-                <a 
-                  href="#features" 
-                  className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Features
-                </a>
-                <a 
-                  href="#how-it-works" 
-                  className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  How it Works
-                </a>
-                {/* <Link 
-                  to="/pricing" 
-                  className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Pricing
-                </Link> */}
-                {/* <div className="flex flex-col space-y-3 pt-2">
-                  <Button variant="ghost" onClick={handleSignIn} className="justify-start text-neutral-700 hover:text-neutral-900">
-                    Sign In
-                  </Button>
-                  <Link to="/onboarding">
-                    <Button className="w-full bg-neutral-900 hover:bg-neutral-800">
-                      Start Free Trial
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+              <div className="border-t border-neutral-200 py-4">
+                <nav className="flex flex-col space-y-4">
+                  <a 
+                    href="#features" 
+                    className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </a>
+                  <a 
+                    href="#how-it-works" 
+                    className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    How it Works
+                  </a>
+                  <div className="pt-3">
+                    <Button 
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }}
+                      className="w-full bg-neutral-900 hover:bg-neutral-800 text-white"
+                    >
+                      Join Waitlist
                     </Button>
-                  </Link>
-                </div> */}
+                  </div>
+                </nav>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Header - Floating Island */}
+        <div className="hidden md:flex justify-center pt-4 px-4">
+          <div className="bg-white/90 backdrop-blur-lg border border-neutral-200/50 rounded-2xl shadow-lg shadow-neutral-900/5 px-6 py-3 max-w-fit">
+            <div className="flex items-center justify-between gap-8">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <Bot className="h-6 w-6 text-neutral-900" />
+                <span className="text-lg font-semibold text-neutral-900">CompeteAI</span>
+              </div>
+              
+              {/* Desktop Navigation */}
+              <nav className="flex space-x-6 lg:space-x-8">
+                <a href="#features" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Features</a>
+                <a href="#how-it-works" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">How it Works</a>
+                {/* <Link to="/pricing" className="text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">Pricing</Link> */}
               </nav>
+              
+              {/* Desktop Actions */}
+              <div className="flex items-center">
+                <Button 
+                  onClick={() => document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="bg-neutral-900 hover:bg-neutral-800 text-white text-sm px-4 py-2"
+                >
+                  Join the Waitlist
+                </Button>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <div className="relative mx-auto w-full max-w-screen-lg overflow-hidden rounded-xl sm:rounded-2xl bg-neutral-50 p-6 sm:p-12 lg:p-20 text-center">
+      <section className="relative px-4 py-8 sm:px-6 sm:py-12 lg:px-8 md:pt-2 lg:pt-2">
+        <div className="relative mx-auto w-full max-w-screen-lg overflow-hidden rounded-xl sm:rounded-2xl bg-neutral-50 px-6 py-6 sm:px-12 sm:py-8 lg:px-20 lg:py-4 text-center">
           {/* Grid pattern */}
           <div className="absolute inset-[unset] left-1/2 top-0 w-[800px] sm:w-[1200px] -translate-x-1/2 text-neutral-300">
             <svg width="100%" height="400" viewBox="0 0 1200 400" className="opacity-30 sm:opacity-50">
@@ -115,31 +129,53 @@ const Index = () => {
           </div>
           
           {/* Gradient background */}
-          <div className="absolute -inset-x-4 sm:-inset-x-10 bottom-0 h-[60%] opacity-30 sm:opacity-40 blur-[60px] sm:blur-[100px]">
-            <div 
-              className="size-full -scale-y-100"
-              style={{
-                background: `radial-gradient(77% 116% at 37% 67%, #EEA5BA, rgba(238, 165, 186, 0) 50%),
-                  radial-gradient(56% 84% at 34% 56%, #3A8BFD, rgba(58, 139, 253, 0) 50%),
-                  radial-gradient(85% 127% at 100% 100%, #E4C795, rgba(228, 199, 149, 0) 50%),
-                  radial-gradient(82% 122% at 3% 29%, #855AFC, rgba(133, 90, 252, 0) 50%),
-                  radial-gradient(90% 136% at 52% 100%, #FD3A4E, rgba(253, 58, 78, 0) 50%),
-                  radial-gradient(102% 143% at 92% 7%, #72FE7D, rgba(114, 254, 125, 0) 50%)`
-              }}
-            />
+          <div className="absolute -left-1/4 -top-1/2 h-[135%] w-[150%] opacity-5 blur-[130px]">
+            <div className="size-full bg-gradient-to-r from-[#090040] via-[#471396] via-[#B13BFF] via-[#FFCC00] to-[#090040]" 
+                 style={{maskImage: 'radial-gradient(closest-side,black 100%,transparent 100%)'}} />
           </div>
 
           <div className="relative">
-            <div className="mx-auto flex h-6 sm:h-7 w-fit items-center rounded-full border border-neutral-200 bg-white px-3 sm:px-4 text-xs text-neutral-800 mb-4 sm:mb-6">
-              AI-Powered Competitive Intelligence
+            <div className="mx-auto flex h-6 sm:h-7 w-fit items-center rounded-full border border-neutral-200 bg-white px-3 sm:px-4 text-xs text-neutral-800">
+            Competitive Intelligence for SaaS Businesses
+            </div>
+            
+            {/* BounceCards Demo */}
+            <div className="w-full flex justify-center items-center">
+              <div className="relative flex justify-center items-center -translate-x-8 sm:translate-x-0" style={{ height: '300px', width: '100%' }}>
+                <BounceCards
+                  images={[
+                    "/images/competitors/screenshot-competitor-2.png",
+                    "/images/competitors/screenshot-competitor-4.png",
+                    "/images/competitors/screenshot-competitor-3.png",
+                    "/images/competitors/screenshot-competitor-1.png",
+                    "/images/competitors/screenshot-competitor-5.png"
+                  ]}
+                  containerWidth={500}
+                  containerHeight={300}
+                  animationDelay={1}
+                  animationStagger={0.08}
+                  easeType="elastic.out(1, 0.5)"
+                  transformStyles={[
+                    "translate(-120px, -10px) rotate(5deg)",
+                    "translate(-50px, 5px) rotate(0deg)",
+                    "translate(0px, 0px) rotate(-5deg)",
+                    "translate(50px, 5px) rotate(5deg)",
+                    "translate(120px, -10px) rotate(-5deg)"
+                  ]}
+                  className="absolute inset-0 m-auto"
+                />
+              </div>
             </div>
             
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-neutral-900 leading-tight sm:leading-[1.15] mb-4 sm:mb-6">
               Generate in minutes{' '}
-              <span className="bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text text-transparent">
-                Competitor Comparison Pages
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-[#471396] via-[#B13BFF] to-[#090040] bg-clip-text text-transparent font-semibold">
+                  Competitor Comparison Pages
+                </span>
+                <span className="absolute -inset-x-2 -inset-y-1 bg-gradient-to-r from-[#B13BFF]/20 via-[#FFCC00]/20 to-[#B13BFF]/20 rounded-lg -z-10 blur-sm"></span>
               </span>{' '}
-              that rank and convert for your SaaS
+              that rank and convert
             </h1>
             
             <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-8 sm:mb-12 px-2 sm:px-0">
@@ -148,7 +184,7 @@ const Index = () => {
             </p>
 
             {/* Waitlist Signup */}
-            <div className="mb-8 sm:mb-12 px-4 sm:px-0">
+            <div id="waitlist-signup" className="mb-8 sm:mb-12 px-4 sm:px-0">
               <WaitlistSignup />
             </div>
 
@@ -171,41 +207,41 @@ const Index = () => {
                 icon: Search,
                 title: "Research Robot",
                 description: "Scans websites, review platforms, pricing pages, and videos to find relevant competitor data and positioning. No spreadsheets required.",
-                color: "blue"
+                color: "primary"
               },
               {
                 icon: FileText,
                 title: "Writing Robot", 
                 description: "Crafts high-quality comparison content using fresh insights and unique angles that help your brand stand out in search.",
-                color: "green"
+                color: "secondary"
               },
               {
                 icon: Download,
                 title: "Design Robot",
                 description: "Turns your content into clean, well-branded competitor cheat sheets and beautiful PDF battlecards. Ready sharing with the clients.", 
-                color: "purple"
+                color: "accent"
               }
             ].map((item, idx) => (
               <div key={idx} className="relative flex flex-col gap-4 sm:gap-6 px-4 py-6 sm:px-6 sm:py-8 bg-white rounded-lg border border-neutral-100 hover:border-neutral-200 transition-colors">
                 <div className={cn(
                   "absolute left-1/2 top-1/3 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 sm:opacity-10 blur-[30px] sm:blur-[50px]",
-                  item.color === "blue" && "bg-blue-500",
-                  item.color === "green" && "bg-green-500", 
-                  item.color === "purple" && "bg-purple-500"
+                  item.color === "primary" && "bg-[#471396]",
+                  item.color === "secondary" && "bg-[#B13BFF]", 
+                  item.color === "accent" && "bg-[#FFCC00]"
                 )} />
                 
                 <div className="relative h-20 sm:h-32 overflow-hidden flex items-center justify-center">
                   <div className={cn(
                     "w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center",
-                    item.color === "blue" && "bg-blue-100",
-                    item.color === "green" && "bg-green-100",
-                    item.color === "purple" && "bg-purple-100"
+                    item.color === "primary" && "bg-[#471396]/10 border border-[#471396]/20",
+                    item.color === "secondary" && "bg-[#B13BFF]/10 border border-[#B13BFF]/20",
+                    item.color === "accent" && "bg-[#FFCC00]/10 border border-[#FFCC00]/20"
                   )}>
                     <item.icon className={cn(
                       "h-6 w-6 sm:h-8 sm:w-8",
-                      item.color === "blue" && "text-blue-600",
-                      item.color === "green" && "text-green-600", 
-                      item.color === "purple" && "text-purple-600"
+                      item.color === "primary" && "text-[#471396]",
+                      item.color === "secondary" && "text-[#B13BFF]", 
+                      item.color === "accent" && "text-[#FFCC00]"
                     )} />
                   </div>
                 </div>
@@ -259,7 +295,7 @@ const Index = () => {
               }
             ].map((feature, idx) => (
               <div key={idx} className="relative flex flex-col gap-6 sm:gap-10 px-4 py-8 sm:py-14 sm:px-12">
-                <div className="absolute left-1/2 top-1/3 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 sm:opacity-10 blur-[30px] sm:blur-[50px] bg-gradient-to-r from-orange-400 to-red-500" />
+                <div className="absolute left-1/2 top-1/3 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 sm:opacity-10 blur-[30px] sm:blur-[50px] bg-gradient-to-r from-[#471396] to-[#B13BFF]" />
                 
                 <div className="relative h-16 sm:h-24 overflow-hidden flex items-center justify-center">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border border-neutral-200 bg-white flex items-center justify-center">
@@ -323,8 +359,8 @@ const Index = () => {
           </div>
           
           {/* Gradient background */}
-          <div className="absolute -left-1/4 -top-1/2 h-[135%] w-[150%] opacity-3 sm:opacity-5 blur-[80px] sm:blur-[130px]">
-            <div className="size-full bg-gradient-to-r from-purple-500 via-red-500 via-yellow-500 via-green-500 to-purple-500" 
+          <div className="absolute -left-1/4 -top-1/2 h-[135%] w-[150%] opacity-5 blur-[130px]">
+            <div className="size-full bg-gradient-to-r from-[#090040] via-[#471396] via-[#B13BFF] via-[#FFCC00] to-[#090040]" 
                  style={{maskImage: 'radial-gradient(closest-side,black 100%,transparent 100%)'}} />
           </div>
 
@@ -398,14 +434,14 @@ const Index = () => {
                 <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-neutral-900" />
                 <span className="text-lg sm:text-xl font-semibold text-neutral-900">CompeteAI</span>
               </div>
-              <p className="text-neutral-600 text-xs sm:text-sm max-w-xs">AI-powered competitive intelligence for modern businesses.</p>
+              <p className="text-neutral-600 text-xs sm:text-sm max-w-xs">AI-powered competitive intelligence for SaaS businesses.</p>
             </div>
             <div>
               <h4 className="font-medium text-neutral-900 mb-3 sm:mb-4 text-sm sm:text-base">Product</h4>
               <ul className="space-y-2 text-xs sm:text-sm text-neutral-600">
                 <li><a href="#features" className="hover:text-neutral-900 transition-colors">Features</a></li>
                 {/* <li><Link to="/pricing" className="hover:text-neutral-900 transition-colors">Pricing</Link></li> */}
-                <li><a href="#" className="hover:text-neutral-900 transition-colors">API</a></li>
+                {/* <li><a href="#" className="hover:text-neutral-900 transition-colors">API</a></li> */}
               </ul>
             </div>
             <div>
@@ -426,7 +462,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-neutral-200 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-xs sm:text-sm text-neutral-500">© 2024 CompeteAI. All rights reserved.</p>
+            <p className="text-xs sm:text-sm text-neutral-500">© 2025 CompeteAI. All rights reserved.</p>
             <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-0">
               <a href="#" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Privacy</a>
               <a href="#" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Terms</a>

@@ -4,6 +4,7 @@ import { CheckCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { kitService } from '../services/kitService';
+import ShiftingCountdown from './ui/countdown-timer';
 
 export default function WaitlistSignup() {
   const [email, setEmail] = useState('');
@@ -105,6 +106,11 @@ export default function WaitlistSignup() {
           <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
           <span>Always Up-To-Date</span>
         </div>
+      </div>
+
+      {/* Countdown Timer */}
+      <div className="mt-8 pt-8 border-t border-neutral-200">
+        <ShiftingCountdown />
       </div>
     </div>
   );
