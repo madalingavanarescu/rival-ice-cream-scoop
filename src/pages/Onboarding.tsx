@@ -80,8 +80,7 @@ const Onboarding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Bot className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">CompeteAI</span>
+                              <img src="/images/logo-contenda.svg" alt="Contenda" className="h-8" />
             </Link>
             <div className="text-sm text-gray-600">
               Step {step} of 5

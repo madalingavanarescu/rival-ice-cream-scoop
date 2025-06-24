@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Bot, Search, FileText, Download, Star, Users, Zap, Shield, Globe, CheckCircle, Menu, X } from 'lucide-react';
+import { ArrowRight, Search, FileText, Download, Star, Users, Zap, Shield, Globe, CheckCircle, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import WaitlistSignup from '@/components/WaitlistSignup';
@@ -32,8 +32,7 @@ const Index = () => {
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-                <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+                <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6 sm:h-8" />
               </div>
               
               {/* Mobile Menu Button */}
@@ -88,8 +87,7 @@ const Index = () => {
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <Bot className="h-6 w-6 text-neutral-900" />
-                <span className="text-lg font-semibold text-neutral-900">CompeteAI</span>
+                <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6" />
               </div>
               
               {/* Desktop Navigation */}
@@ -266,7 +264,7 @@ const Index = () => {
             Everything You Need to Stand Out from Your SaaS Competitors
           </h2>
           <p className="text-pretty text-base sm:text-lg text-neutral-600">
-          From smart research to standout design, CompeteAI gives your marketing and sales team the edge they need to win.
+          From smart research to standout design, Contenda gives your marketing and sales team the edge they need to win.
           </p>
         </div>
 
@@ -285,7 +283,7 @@ const Index = () => {
               },
               {
                 title: "Built for Collaboration",
-                description: "Bring your insights into the loop. Add context, adjust voice, and refine focus. CompeteAI works with you, not instead of you.",
+                description: "Bring your insights into the loop. Add context, adjust voice, and refine focus. Contenda works with you, not instead of you.",
                 icon: Search
               },
               {
@@ -431,8 +429,7 @@ const Index = () => {
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="col-span-2 sm:col-span-1">
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
-                <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-neutral-900" />
-                <span className="text-lg sm:text-xl font-semibold text-neutral-900">CompeteAI</span>
+                <img src="/images/logo-contenda.svg" alt="Contenda" className="h-5 sm:h-6" />
               </div>
               <p className="text-neutral-600 text-xs sm:text-sm max-w-xs">AI-powered competitive intelligence for SaaS businesses.</p>
             </div>
@@ -462,7 +459,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-neutral-200 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-xs sm:text-sm text-neutral-500">© 2025 CompeteAI. All rights reserved.</p>
+            <p className="text-xs sm:text-sm text-neutral-500">© 2025 Contenda. All rights reserved.</p>
             <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-0">
               <a href="#" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Privacy</a>
               <a href="#" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Terms</a>

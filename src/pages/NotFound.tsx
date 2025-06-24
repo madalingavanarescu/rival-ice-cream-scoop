@@ -20,8 +20,7 @@ const NotFound = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 sm:h-16 items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-              <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+                              <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6 sm:h-8" />
             </Link>
           </div>
         </div>

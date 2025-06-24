@@ -121,8 +121,7 @@ const Pricing = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 sm:h-16 items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-              <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+                              <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6 sm:h-8" />
             </Link>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -249,7 +248,7 @@ const Pricing = () => {
               Frequently asked questions
             </h2>
             <p className="text-base sm:text-lg text-neutral-600">
-              Everything you need to know about CompeteAI pricing.
+                              Everything you need to know about Contenda pricing.
             </p>
           </div>
           

@@ -31,8 +31,7 @@ export default function ThankYou() {
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-                <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+                                 <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6 sm:h-8" />
               </div>
               
               {/* Mobile Menu Button */}
@@ -86,8 +85,7 @@ export default function ThankYou() {
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <Bot className="h-6 w-6 text-neutral-900" />
-                <span className="text-lg font-semibold text-neutral-900">CompeteAI</span>
+                                 <img src="/images/logo-contenda.svg" alt="Contenda" className="h-5" />
               </div>
               
               {/* Desktop Navigation */}
@@ -171,7 +169,7 @@ export default function ThankYou() {
             frameBorder={0} 
             marginHeight={0} 
             marginWidth={0} 
-            title="CompeteAI Waiting List"
+                            title="Contenda Waiting List"
             className="w-full"
           ></iframe>
         </div>
@@ -182,7 +180,7 @@ export default function ThankYou() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-sm text-neutral-500">
-              © 2024 CompeteAI. All rights reserved.
+                              © 2024 Contenda. All rights reserved.
             </p>
           </div>
         </div>

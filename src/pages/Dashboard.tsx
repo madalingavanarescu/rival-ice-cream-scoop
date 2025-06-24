@@ -40,8 +40,7 @@ const Dashboard = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 sm:h-16 items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-neutral-900" />
-              <span className="text-lg sm:text-2xl font-semibold text-neutral-900">CompeteAI</span>
+                              <img src="/images/logo-contenda.svg" alt="Contenda" className="h-6 sm:h-8" />
             </Link>
             <div className="flex items-center space-x-3 sm:space-x-4">
               <Link to="/pricing">
@@ -198,7 +197,7 @@ const Dashboard = () => {
                     </div>
                     <h3 className="text-lg font-medium text-neutral-900 mb-2">No analyses yet</h3>
                     <p className="text-neutral-600 mb-6 max-w-sm mx-auto">
-                      Create your first competitor analysis to get started with CompeteAI.
+                      Create your first competitor analysis to get started with Contenda.
                     </p>
                     <Link to="/onboarding">
                       <Button disabled={!canCreateAnalysis} className="bg-neutral-900 hover:bg-neutral-800">

@@ -20,7 +20,7 @@ const AnalysisPage = () => {
       <div className="max-w-2xl mx-auto py-24 px-4">
         <h2 className="text-3xl font-bold mb-6">Sample Competitor Analysis</h2>
         <p className="mb-4">
-          Here is a demo of what you'll receive with CompeteAI. Your real results will be fully tailored to your market:
+                          Here is a demo of what you'll receive with Contenda. Your real results will be fully tailored to your market:
         </p>
         <ul className="mb-6 text-blue-800 space-y-2 bg-blue-50 p-4 rounded">
           <li>• 5 sample competitors with side-by-side charts</li>
