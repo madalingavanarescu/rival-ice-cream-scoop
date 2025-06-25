@@ -32,5 +32,5 @@ jobs:
         with:
           github_token: ${{ secrets.GH_PAT }}
           publish_dir: ./dist
-          cname: rival-icecream.dedyn.io
+          cname: trycontenda.com
           force_orphan: true 
