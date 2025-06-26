@@ -461,7 +461,7 @@ const Index = () => {
           <div className="border-t border-neutral-200 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-xs sm:text-sm text-neutral-500">© 2025 Contenda. All rights reserved.</p>
             <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-0">
-              <a href="https://www.linkedin.com/in/madalin-gavanarescu/" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">We’re a small startup. Every time we say “we,” it’s actually just me.</a>
+              <a href="https://www.linkedin.com/in/madalin-gavanarescu/" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">We’re a small startup. Every time we say we, it’s actually me.</a>
             </div>
           </div>
         </div>
