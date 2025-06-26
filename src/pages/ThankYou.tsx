@@ -159,6 +159,7 @@ export default function ThankYou() {
       </main> */}
 
       {/* Survey Section - Centered */}
+      <div data-tf-live="01JYKP6KZX7H7F1T57SVQ5C1X3"></div><script src="//embed.typeform.com/next/embed.js"></script>
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl mx-auto w-full">
           <iframe 
