@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Search, FileText, Download, Star, Users, Zap, Shield, Globe, CheckCircle, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import WaitlistSignup from '@/components/WaitlistSignup';
 import { BounceCards } from '@/components/ui/bounce-cards';
+import { analytics } from '@/services/mixpanelService';
 
 const Index = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Track page view when component mounts
+  useEffect(() => {
+    analytics.trackPageView('Landing Page');
+  }, []);
+
   // Handlers for buttons
   const handleSample = () => {
+    analytics.track('Sample Report Clicked');
     // Navigate to a hardcoded sample report (public demo)
     navigate('/analysis/sample');
   };
 
   const handleSignIn = () => {
+    analytics.track('Sign In Clicked');
     navigate('/auth');
+  };
+
+  const handleJoinWaitlist = (closeMobileMenu = false) => {
+    analytics.track('Join Waitlist Button Clicked');
+    if (closeMobileMenu) {
+      setMobileMenuOpen(false);
+    }
+    document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const handleFeatureClick = (feature: string) => {
+    analytics.track('Feature Section Clicked', { feature });
   };
 
   return (
@@ -64,10 +84,7 @@ const Index = () => {
                   </a>
                   <div className="pt-3">
                     <Button 
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }}
+                      onClick={() => handleJoinWaitlist(true)}
                       className="w-full bg-neutral-900 hover:bg-neutral-800 text-white"
                     >
                       Join Waitlist
@@ -100,7 +117,7 @@ const Index = () => {
               {/* Desktop Actions */}
               <div className="flex items-center">
                 <Button 
-                  onClick={() => document.getElementById('waitlist-signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  onClick={() => handleJoinWaitlist()}
                   className="bg-neutral-900 hover:bg-neutral-800 text-white text-sm px-4 py-2"
                 >
                   Join Waitlist
@@ -178,7 +195,7 @@ const Index = () => {
             
             <p className="mx-auto max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-xl text-neutral-700 mb-8 sm:mb-12 px-2 sm:px-0">
              Generate SEO-optimised <b>ready-to-rank competitor pages </b> 
-             and <b>sales-ready cheat sheets</b> that help you stay ahead. Our AI robots analyze your competitors 24/7, so you’re always up to date. No more manual research or outdated spreadsheets.
+             and <b>sales-ready cheat sheets</b> that help you stay ahead. Our AI robots analyze your competitors 24/7, so you're always up to date. No more manual research or outdated spreadsheets.
             </p>
 
             {/* Waitlist Signup */}
@@ -273,7 +290,7 @@ const Index = () => {
             {[
               {
                 title: "Ready-to-Rank Comparison Pages",
-                description: "SEO-focused content for high-intent keywords like “vs” and “alternatives” with FAQs and semantic structure included.",
+                description: "SEO-focused content for high-intent keywords like 'vs' and 'alternatives' with FAQs and semantic structure included.",
                 icon: Globe
               },
               {
@@ -326,7 +343,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[
-              "Enter your competitor’s website and let our Research Robot dig into their product features, pricing, and positioning",
+              "Enter your competitor's website and let our Research Robot dig into their product features, pricing, and positioning",
               "The Writing Robot turns that data into compelling, SEO-optimized content with rich comparison tables and FAQs.", 
               "The Design Robot wraps it all into on-brand comparison pages and polished PDF battlecards and cheat sheets for your team"
             ].map((step, idx) => (
@@ -461,7 +478,7 @@ const Index = () => {
           <div className="border-t border-neutral-200 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-xs sm:text-sm text-neutral-500">© 2025 Contenda. All rights reserved.</p>
             <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-0">
-              <a href="https://www.linkedin.com/in/madalin-gavanarescu/" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">We’re a small startup. Every time we say we, it’s actually me.</a>
+              <a href="https://www.linkedin.com/in/madalin-gavanarescu/" className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors">We're a small startup. Every time we say we, it's actually me.</a>
             </div>
           </div>
         </div>
