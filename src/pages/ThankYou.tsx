@@ -163,7 +163,7 @@ export default function ThankYou() {
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-4xl mx-auto w-full">
           <iframe 
-            data-tally-src="https://tally.so/embed/nGaOEQ?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" 
+            data-tally-src="https://tally.so/embed/wa1Yl2?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" 
             loading="lazy" 
             width="100%" 
             height={2341} 
