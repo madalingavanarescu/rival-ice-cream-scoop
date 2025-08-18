@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAnimate } from "framer-motion";
 
-// Countdown to August 19, 2025 at 10:00 GMT
-const COUNTDOWN_FROM = "2025-08-19T10:00:00Z";
+// Countdown to September 2, 2025 at 10:00 GMT
+const COUNTDOWN_FROM = "2025-09-02T10:00:00Z";
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
@@ -14,7 +14,7 @@ export default function ShiftingCountdown() {
     <div className="w-full max-w-lg mx-auto">
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold text-neutral-800 mb-1">Launch Countdown</h3>
-        <p className="text-sm text-neutral-600">August 19, 2025 • 10:00 GMT</p>
+        <p className="text-sm text-neutral-600">September 02, 2025 • 10:00 GMT</p>
       </div>
       <div className="flex w-full items-center bg-transparent">
         <CountdownItem unit="Day" label="Days" />
