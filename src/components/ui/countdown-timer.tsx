@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAnimate } from "framer-motion";
 
-// Countdown to September 2, 2025 at 10:00 GMT
-const COUNTDOWN_FROM = "2025-09-02T10:00:00Z";
+// Countdown to February 2, 2026 at 10:00 GMT
+const COUNTDOWN_FROM = "2026-02-02T10:00:00Z";
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
