@@ -14,7 +14,7 @@ export default function ShiftingCountdown() {
     <div className="w-full max-w-lg mx-auto">
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold text-neutral-800 mb-1">Launch Countdown</h3>
-        <p className="text-sm text-neutral-600">September 02, 2025 • 10:00 GMT</p>
+        <p className="text-sm text-neutral-600">February 02, 2026 • 10:00 GMT</p>
       </div>
       <div className="flex w-full items-center bg-transparent">
         <CountdownItem unit="Day" label="Days" />
